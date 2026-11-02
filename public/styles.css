@@ -228,3 +228,11 @@ dialog .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top
 .login-card h2 { margin: 0; font-size: 20px; }
 .login-card p { margin: 0; }
 .login-error { color: var(--red); font-size: 13px; min-height: 1em; }
+
+/* Procedure-gegevens */
+.proc { border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; background: #fafbfd; }
+.proc-title { font-weight: 600; font-size: 13px; margin-bottom: 8px; }
+.proc .grid { grid-template-columns: repeat(3, 1fr); }
+.proc p { margin: 8px 0 0; }
+dialog { width: min(640px, 94vw); max-height: 92vh; }
+@media (max-width: 560px) { .proc .grid { grid-template-columns: 1fr 1fr; } }

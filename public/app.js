@@ -22,6 +22,36 @@
     "Andere": "#8a94a3",
   };
   const PRODUCTS = ["Thyroid", "Fibroid"];
+  // Gegevens per procedure (anoniem: geen patiëntnamen). Volume = L × B × H × 0,524 (ellipsoïde).
+  const PROC_FIELDS = [
+    { key: "side", label: "Locatie", product: "Thyroid", options: ["Rechts", "Links", "Isthmus"] },
+    { key: "noduleType", label: "Type nodule", product: "Thyroid", options: ["Solide", "Overwegend solide", "Gemengd", "Overwegend cystisch", "Cystisch"] },
+    { key: "tirads", label: "TI-RADS", product: "Thyroid", options: ["1", "2", "3", "4", "5"] },
+    { key: "bethesda", label: "Bethesda", product: "Thyroid", options: ["I", "II", "III", "IV", "V", "VI"] },
+    { key: "indication", label: "Indicatie", product: "Thyroid", options: ["Symptomatisch", "Cosmetisch", "Autonoom (hot)", "Recidief", "Andere"] },
+    { key: "figo", label: "FIGO-type", product: "Fibroid", options: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "2-5"] },
+    { key: "fibroidCount", label: "Aantal myomen", product: "Fibroid", type: "number" },
+    { key: "approach", label: "Benadering", product: "Fibroid", options: ["Transvaginaal", "Transcervicaal", "Laparoscopisch", "Percutaan"] },
+    { key: "symptoms", label: "Klachten", product: "Fibroid", options: ["Bloedingen", "Druk / pijn", "Fertiliteit", "Combinatie", "Andere"] },
+    { key: "length", label: "Lengte (mm)", type: "number", step: "0.1" },
+    { key: "width", label: "Breedte (mm)", type: "number", step: "0.1" },
+    { key: "depth", label: "Diepte (mm)", type: "number", step: "0.1" },
+    { key: "volume", label: "Volume (ml)", type: "number", step: "0.01" },
+    { key: "needle", label: "Naald / elektrode", placeholder: "bv. 18G, 10 mm tip" },
+    { key: "needlesUsed", label: "Naalden gebruikt", type: "number" },
+    { key: "power", label: "Vermogen (W)", type: "number" },
+    { key: "duration", label: "Ablatietijd (s)", type: "number" },
+    { key: "energy", label: "Energie (kJ)", type: "number", step: "0.01" },
+    { key: "anesthesia", label: "Verdoving", options: ["Lokaal", "Sedatie", "Algemeen"] },
+    { key: "complication", label: "Complicaties", options: ["Geen", "Licht", "Ernstig"] },
+    { key: "patientAge", label: "Leeftijd patiënt", type: "number" },
+    { key: "patientSex", label: "Geslacht", options: ["V", "M", "X"] },
+    { key: "followupDate", label: "Follow-up datum", type: "date" },
+    { key: "followupVolume", label: "Follow-up volume (ml)", type: "number", step: "0.01" },
+  ];
+  const ellipsoid = (d) => (d.length && d.width && d.depth ? +(d.length * d.width * d.depth * 0.524 / 1000).toFixed(2) : "");
+  // Volumereductie (VRR) in %, de standaardmaat voor RF-ablatie.
+  const vrr = (d) => (d && d.volume && d.followupVolume ? Math.round((1 - d.followupVolume / d.volume) * 100) : null);
   const AUS_BOUNDS = [[-44, 112], [-10, 154]];
 
   const state = {
@@ -281,6 +311,18 @@
     renderAll();
   }
 
+  function procSummary(d) {
+    if (!d) return "";
+    const r = vrr(d);
+    return [
+      d.side, d.figo && `FIGO ${d.figo}`, d.noduleType, d.tirads && `TI-RADS ${d.tirads}`,
+      d.length && d.width && d.depth ? `${d.length}×${d.width}×${d.depth} mm` : "",
+      d.volume && `${d.volume} ml`, d.energy && `${d.energy} kJ`,
+      d.complication && d.complication !== "Geen" ? `complicatie: ${d.complication}` : "",
+      r !== null ? `VRR ${r}%` : "",
+    ].filter(Boolean).join(" · ");
+  }
+
   // ---------- fiche ----------
   function renderFiche() {
     const el = $("#fiche");
@@ -334,11 +376,13 @@
         ${acts.length ? `<ul class="timeline">${acts.map((a) => {
           const c = h.contacts.find((x) => x.id === a.contactId);
           const sub = [a.product, c && c.name, (a.type === "Procedure" || a.type === "Bestelling") && a.qty ? `aantal: ${a.qty}` : ""].filter(Boolean).join(" · ");
+          const det = procSummary(a.details);
           return `<li>
             <div class="t-date">${fmtDate(a.date)}</div>
             <div class="t-body">
               <div class="t-type"><span class="type-pill" style="background:${ACT_TYPES[a.type] || "#999"}"></span>${esc(a.type)}</div>
               ${sub ? `<div class="t-sub">${esc(sub)}</div>` : ""}
+              ${det ? `<div class="t-sub">${esc(det)}</div>` : ""}
               ${a.note ? `<div class="t-note">${esc(a.note)}</div>` : ""}
             </div>
             <div><button class="icon-btn" data-act="edit-activity" data-id="${a.id}" title="Bewerk">✎</button></div>
@@ -407,6 +451,7 @@
     if (t.dataset.field) {
       h[t.dataset.field] = t.value;
       if (t.dataset.field === "name" && !t.value.trim()) { h.name = "Naamloos"; t.value = h.name; }
+      if (t.dataset.field === "stage") stageStatus(h);
     } else if (t.dataset.product) {
       const p = t.dataset.product;
       h.products = t.checked ? [...new Set([...h.products, p])] : h.products.filter((x) => x !== p);
@@ -414,7 +459,7 @@
     scheduleSave();
     renderList();
     renderKpis();
-    if (["name", "nextActionDate", "kind"].includes(t.dataset.field)) { renderFiche(); renderMarkers(); }
+    if (["name", "nextActionDate", "kind", "stage"].includes(t.dataset.field)) { renderFiche(); renderMarkers(); }
   });
 
   $("#fiche").addEventListener("click", (e) => {
@@ -535,6 +580,17 @@
           <select name="contactId"><option value="">—</option>${h.contacts.map((c) => `<option value="${c.id}" ${c.id === v.contactId ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select>
         </label>
         <label class="field full" id="qtyField">Aantal <span id="qtyLabel"></span><input type="number" min="1" name="qty" value="${esc(v.qty)}" placeholder="1"></label>
+        <div class="full proc" id="procFields">
+          <div class="proc-title">Procedure-gegevens <span class="muted">(optioneel, anoniem)</span></div>
+          <div class="grid">${PROC_FIELDS.map((f) => {
+            const val = (v.details || {})[f.key] ?? "";
+            const input = f.options
+              ? `<select name="d_${f.key}"><option value="">—</option>${f.options.map((o) => `<option ${o === String(val) ? "selected" : ""}>${o}</option>`).join("")}</select>`
+              : `<input name="d_${f.key}" type="${f.type || "text"}" ${f.step ? `step="${f.step}"` : ""} min="0" value="${esc(val)}" placeholder="${esc(f.placeholder || "")}">`;
+            return `<label class="field" data-for="${f.product || ""}">${f.label}${input}</label>`;
+          }).join("")}</div>
+          <p class="muted" id="vrrInfo"></p>
+        </div>
         <label class="field full">Notitie<textarea name="note" rows="4" placeholder="Wat werd besproken, afspraken…">${esc(v.note)}</textarea></label>
       </div>
       <div class="actions">
@@ -549,6 +605,17 @@
         const rec = a || { id: uid() };
         const hasQty = data.type === "Procedure" || data.type === "Bestelling";
         Object.assign(rec, { date: data.date, type: data.type, product: data.product, contactId: data.contactId, qty: hasQty ? Number(data.qty) || 1 : "", note: data.note.trim() });
+        delete rec.details;
+        if (data.type === "Procedure") {
+          const d = {};
+          for (const f of PROC_FIELDS) {
+            if (f.product && f.product !== data.product) continue;
+            const raw = (data["d_" + f.key] || "").trim();
+            if (raw !== "") d[f.key] = f.type === "number" ? Number(raw) : raw;
+          }
+          if (!d.volume && ellipsoid(d)) d.volume = ellipsoid(d);
+          if (Object.keys(d).length) rec.details = d;
+        }
         if (!a) {
           h.activities.push(rec);
           autoStatus(h, rec);
@@ -559,12 +626,33 @@
     });
     const sync = () => {
       const t = form.elements.type.value;
+      const product = form.elements.product.value;
       const show = t === "Procedure" || t === "Bestelling";
       $("#qtyField", form).hidden = !show;
       $("#qtyLabel", form).textContent = t === "Procedure" ? "(procedures)" : "(naalden)";
+      $("#procFields", form).hidden = t !== "Procedure";
+      form.querySelectorAll("#procFields [data-for]").forEach((el) => {
+        el.hidden = !!el.dataset.for && el.dataset.for !== product;
+      });
+      const num = (k) => Number(form.elements["d_" + k].value) || 0;
+      const d = { length: num("length"), width: num("width"), depth: num("depth"), volume: num("volume"), followupVolume: num("followupVolume") };
+      form.elements.d_volume.placeholder = ellipsoid(d) ? `${ellipsoid(d)} (berekend)` : "";
+      if (!d.volume) d.volume = ellipsoid(d);
+      const r = vrr(d);
+      $("#vrrInfo", form).textContent = r === null ? "Volume wordt berekend uit L × B × D als je het leeg laat." : `Volumereductie (VRR): ${r}%`;
     };
-    form.elements.type.addEventListener("change", sync);
+    form.addEventListener("input", sync);
+    form.addEventListener("change", sync);
     sync();
+  }
+
+  // Verkoopfase bepaalt mee de kleur: Klant = groen, actieve fases = oranje.
+  function stageStatus(h) {
+    const before = h.status;
+    if (h.stage === "Klant") h.status = "green";
+    else if (h.stage === "Prospect") h.status = h.activities.length ? h.status : "red";
+    else if (h.stage !== "Niet geïnteresseerd" && h.status !== "green") h.status = "orange";
+    if (h.status !== before) toast(`Status → ${{ green: "groen (aan het verkopen)", orange: "oranje (in progress)", red: "rood (geen contact)" }[h.status]}`);
   }
 
   // Kleur automatisch mee laten evolueren; manueel aanpassen blijft altijd mogelijk.
@@ -615,7 +703,9 @@
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
-  const csv = (rows) => "﻿" + rows.map((r) => r.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
+  // Puntkomma + decimale komma, zoals Excel met Belgische instellingen verwacht.
+  const csvCell = (v) => (typeof v === "number" ? String(v).replace(".", ",") : `"${String(v ?? "").replace(/"/g, '""')}"`);
+  const csv = (rows) => "﻿" + rows.map((r) => r.map(csvCell).join(";")).join("\r\n");
 
   $("#exportBtn").addEventListener("click", () => {
     openDialog(`
@@ -625,6 +715,7 @@
         <button class="btn" value="hospitals">Overzicht ziekenhuizen (CSV)</button>
         <button class="btn" value="contacts">Contactpersonen (CSV)</button>
         <button class="btn" value="activities">Contactmomenten (CSV)</button>
+        <button class="btn" value="procedures">Procedures met nodule-gegevens (CSV)</button>
         <button class="btn" value="json">Volledige back-up (JSON)</button>
       </div>
       <div class="actions"><button class="btn" value="cancel">Sluiten</button></div>`, () => {});
@@ -647,6 +738,16 @@
           ["Datum", "Ziekenhuis", "Type", "Product", "Contactpersoon", "Aantal", "Notitie"],
           ...hs.flatMap((h) => h.activities.map((a) => [a.date, h.name, a.type, a.product, (h.contacts.find((c) => c.id === a.contactId) || {}).name, a.qty, a.note]))
             .sort((a, b) => b[0].localeCompare(a[0])),
+        ]), "text/csv");
+      } else if (kind === "procedures") {
+        download(`procedures-${d}.csv`, csv([
+          ["Datum", "Ziekenhuis", "Product", "Arts", "Aantal", ...PROC_FIELDS.map((f) => f.label), "VRR (%)", "Notitie"],
+          ...hs.flatMap((h) => h.activities.filter((a) => a.type === "Procedure").map((a) => {
+            const det = a.details || {};
+            const r = vrr(det);
+            return [a.date, h.name, a.product, (h.contacts.find((c) => c.id === a.contactId) || {}).name, a.qty,
+              ...PROC_FIELDS.map((f) => det[f.key] ?? ""), r ?? "", a.note];
+          })).sort((a, b) => b[0].localeCompare(a[0])),
         ]), "text/csv");
       } else if (kind === "json") {
         download(`followup-vaseo-backup-${d}.json`, JSON.stringify(state.db, null, 2), "application/json");
