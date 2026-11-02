@@ -182,6 +182,7 @@
   }
 
   function fitAll() {
+    if (!map.getContainer().offsetWidth) { state.pendingFit = true; return; }
     const pts = visibleHospitals().filter((h) => h.lat != null).map((h) => [h.lat, h.lng]);
     if (pts.length) map.fitBounds(pts, { padding: [40, 40], maxZoom: 12 });
   }
@@ -309,7 +310,17 @@
     if (state.dragId && state.dragId !== id) state.dragId = null;
     const h = sel();
     renderAll();
-    if (fly && h && h.lat != null) map.flyTo([h.lat, h.lng], Math.max(map.getZoom(), 13), { duration: 0.6 });
+    if (fly && h) focusOn(h);
+  }
+  // Een verborgen kaart (gsm, ander tabblad) heeft geen grootte; dan pas inzoomen zodra ze zichtbaar is.
+  function focusOn(h) {
+    if (h.lat == null) return;
+    if (map.getContainer().offsetWidth) {
+      map.invalidateSize();
+      map.flyTo([h.lat, h.lng], Math.max(map.getZoom(), 13), { duration: 0.6 });
+    } else {
+      state.pendingFocus = [h.lat, h.lng];
+    }
   }
   function closeFiche() {
     state.selectedId = null;
@@ -418,10 +429,7 @@
       <div class="section">
         <h3>Gegevens</h3>
         <div class="grid">
-          <label class="field">Type
-            <select data-field="kind">${["Ziekenhuis", "Kliniek", "Organisatie"].map((k) => `<option ${k === h.kind ? "selected" : ""}>${k}</option>`).join("")}</select>
-          </label>
-          <label class="field">Publiek / privé
+          <label class="field full">Publiek / privé
             <select data-field="sector">${["", "Public", "Private", "University"].map((k) => `<option value="${k}" ${k === h.sector ? "selected" : ""}>${k || "—"}</option>`).join("")}</select>
           </label>
           <div class="field full"><span style="font-size:11px;color:var(--muted)">Producten</span>
@@ -446,7 +454,7 @@
       </div>
 
       <div class="fiche-foot">
-        <button class="btn danger" data-act="delete">Verwijder ${esc(h.kind.toLowerCase())}</button>
+        <button class="btn danger" data-act="delete">Verwijder</button>
         <button class="btn" data-act="close">Sluiten</button>
       </div>`;
   }
@@ -467,7 +475,7 @@
     scheduleSave();
     renderList();
     renderKpis();
-    if (["name", "nextActionDate", "kind", "stage"].includes(t.dataset.field)) { renderFiche(); renderMarkers(); }
+    if (["name", "nextActionDate", "stage"].includes(t.dataset.field)) { renderFiche(); renderMarkers(); }
   });
 
   $("#fiche").addEventListener("click", (e) => {
@@ -484,7 +492,7 @@
         state.ficheOpen = false;
         setView("map");
         renderAll();
-        if (h.lat != null) map.flyTo([h.lat, h.lng], Math.max(map.getZoom(), 13), { duration: 0.6 });
+        if (h.lat != null) state.pendingFocus = [h.lat, h.lng];
         else toast("Dit ziekenhuis heeft nog geen locatie");
         return;
       case "add-contact": return contactDialog(h, null);
@@ -687,11 +695,10 @@
   // ---------- nieuw ziekenhuis ----------
   $("#addHospitalBtn").addEventListener("click", () => {
     openDialog(`
-      <h2>Nieuw ziekenhuis / organisatie</h2>
+      <h2>Nieuw ziekenhuis</h2>
       <div class="grid">
         <label class="field full">Naam<input name="name" required></label>
-        <label class="field">Type<select name="kind"><option>Ziekenhuis</option><option>Kliniek</option><option>Organisatie</option></select></label>
-        <label class="field">Publiek / privé<select name="sector"><option value="">—</option><option>Public</option><option>Private</option><option>University</option></select></label>
+        <label class="field full">Publiek / privé<select name="sector"><option value="">—</option><option>Public</option><option>Private</option><option>University</option></select></label>
         <label class="field full">Adres<input name="address"></label>
       </div>
       <p class="muted">Na het opslaan klik je op de kaart om de locatie te kiezen.</p>
@@ -700,7 +707,7 @@
         <button class="btn primary" value="ok">Aanmaken</button>
       </div>`, (data) => {
       const h = normalize({
-        id: uid(), name: data.name.trim(), kind: data.kind, sector: data.sector, address: data.address.trim(),
+        id: uid(), name: data.name.trim(), sector: data.sector, address: data.address.trim(),
         lat: null, lng: null, status: "red", stage: "Prospect", products: [], nextAction: "", nextActionDate: "", notes: "",
       });
       state.db.hospitals.push(h);
@@ -740,8 +747,8 @@
       const d = today();
       if (kind === "hospitals") {
         download(`ziekenhuizen-${d}.csv`, csv([
-          ["Naam", "Type", "Sector", "Status", "Fase", "Producten", "Laatste contact", "Procedures", "Demo's", "Naalden besteld", "Volgende actie", "Actie op", "Hoofdcontact", "Adres", "Notities"],
-          ...hs.map((h) => [h.name, h.kind, h.sector, STATUS[h.status], h.stage, h.products.join(", "), lastContact(h), countType(h, "Procedure"), countType(h, "Demo"), countType(h, "Bestelling"), h.nextAction, h.nextActionDate, (h.contacts.find((c) => c.primary) || {}).name, h.address, h.notes]),
+          ["Naam", "Sector", "Status", "Fase", "Producten", "Laatste contact", "Procedures", "Demo's", "Naalden besteld", "Volgende actie", "Actie op", "Hoofdcontact", "Adres", "Notities"],
+          ...hs.map((h) => [h.name, h.sector, STATUS[h.status], h.stage, h.products.join(", "), lastContact(h), countType(h, "Procedure"), countType(h, "Demo"), countType(h, "Bestelling"), h.nextAction, h.nextActionDate, (h.contacts.find((c) => c.primary) || {}).name, h.address, h.notes]),
         ]), "text/csv");
       } else if (kind === "contacts") {
         download(`contactpersonen-${d}.csv`, csv([
@@ -866,7 +873,17 @@
     try { localStorage.setItem("followup-view", view); } catch (e) { /* privévenster */ }
     if (view === "stats") window.FollowUpStats.render(state.db, statsView, scheduleSave);
     else window.FollowUpStats.hideTip();
-    if (view === "map") setTimeout(() => map.invalidateSize(), 0);
+    if (view === "map") setTimeout(() => {
+      map.invalidateSize();
+      if (state.pendingFocus) {
+        map.setView(state.pendingFocus, Math.max(map.getZoom(), 13), { animate: false });
+        state.pendingFocus = null;
+        state.pendingFit = false;
+      } else if (state.pendingFit) {
+        state.pendingFit = false;
+        fitAll();
+      }
+    }, 0);
   }
   $("#statsBtn").addEventListener("click", () => setView(statsView.hidden ? "stats" : "map"));
   document.querySelector(".tabbar").addEventListener("click", (e) => {
