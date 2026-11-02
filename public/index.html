@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FollowUp Vaseo</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="styles.css?v=202611021632">
+  <link rel="stylesheet" href="styles.css?v=202611021636">
 </head>
 <body>
   <header class="topbar">
@@ -19,6 +19,7 @@
     <div class="kpis" id="kpis"></div>
     <div class="top-actions">
       <span class="save-state" id="saveState"></span>
+      <button class="btn" id="statsBtn">Statistieken</button>
       <button class="btn ghost" id="exportBtn" title="Exporteer data">Exporteer</button>
       <button class="btn ghost" id="importBtn" title="Importeer een JSON-back-up">Importeer</button>
       <input type="file" id="importFile" accept="application/json" hidden>
@@ -64,6 +65,7 @@
     </section>
 
     <aside class="fiche" id="fiche" hidden></aside>
+    <section class="stats-view" id="statsView" hidden></section>
   </main>
 
   <dialog id="dialog"><form method="dialog" id="dialogForm"></form></dialog>
@@ -82,8 +84,9 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
-  <script src="config.js?v=202611021632"></script>
-  <script src="storage.js?v=202611021632"></script>
-  <script src="app.js?v=202611021632"></script>
+  <script src="config.js?v=202611021636"></script>
+  <script src="stats.js?v=202611021636"></script>
+  <script src="storage.js?v=202611021636"></script>
+  <script src="app.js?v=202611021636"></script>
 </body>
 </html>

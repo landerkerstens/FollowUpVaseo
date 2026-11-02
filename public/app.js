@@ -786,6 +786,7 @@
 
   // ---------- start ----------
   function renderAll() {
+    if (!statsView.hidden) window.FollowUpStats.render(state.db, statsView, scheduleSave);
     renderKpis();
     renderList();
     renderMarkers();
@@ -837,5 +838,16 @@
   }
 
   $("#logoutBtn").addEventListener("click", () => store.signOut());
+
+  // ---------- statistieken ----------
+  const statsView = $("#statsView");
+  function toggleStats(on) {
+    statsView.hidden = !on;
+    document.body.classList.toggle("stats-open", on);
+    $("#statsBtn").textContent = on ? "← Kaart" : "Statistieken";
+    if (on) window.FollowUpStats.render(state.db, statsView, scheduleSave);
+    else { window.FollowUpStats.hideTip(); setTimeout(() => map.invalidateSize(), 0); }
+  }
+  $("#statsBtn").addEventListener("click", () => toggleStats(statsView.hidden));
   init();
 })();
