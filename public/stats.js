@@ -254,7 +254,7 @@ window.FollowUpStats = (() => {
             <option value="all" ${view.year === "all" ? "selected" : ""}>Alle jaren</option>
             ${[...years].sort().reverse().filter((y) => /^\d{4}$/.test(y)).map((y) => `<option ${y === view.year ? "selected" : ""}>${y}</option>`).join("")}
           </select></label>
-          <div class="s-seg">${["all", ...PRODUCTS].map((p) => `<button data-stat-product="${p}" class="${view.product === p ? "active" : ""}">${p === "all" ? "Alle producten" : p}</button>`).join("")}</div>
+          <div class="s-seg">${["all", ...PRODUCTS].map((p) => `<button data-stat-product="${p}" class="${view.product === p ? "active" : ""}">${p === "all" ? "Alle" : p}</button>`).join("")}</div>
         </div>
       </div>
       <div class="s-tiles">

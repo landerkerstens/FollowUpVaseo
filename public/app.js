@@ -150,6 +150,7 @@
 
   // ---------- kaart ----------
   const map = L.map("map", { zoomControl: true }).fitBounds(AUS_BOUNDS);
+  // Lichtgrijze kaart in de stijl van vaseomedical.com; de statusbolletjes zijn de enige kleur.
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -194,12 +195,16 @@
     if (!h) return;
     h.lat = +e.latlng.lat.toFixed(5);
     h.lng = +e.latlng.lng.toFixed(5);
+    state.ficheOpen = true;
     scheduleSave();
     renderAll();
     toast("Locatie ingesteld");
   });
   function startPlacing(id) {
     state.placing = { id };
+    state.ficheOpen = false;
+    setView("map");
+    renderFiche();
     $("#placeHint").hidden = false;
     map.getContainer().style.cursor = "crosshair";
   }
@@ -300,6 +305,7 @@
   // ---------- selectie ----------
   function select(id, fly) {
     state.selectedId = id;
+    state.ficheOpen = true;
     if (state.dragId && state.dragId !== id) state.dragId = null;
     const h = sel();
     renderAll();
@@ -307,6 +313,7 @@
   }
   function closeFiche() {
     state.selectedId = null;
+    state.ficheOpen = false;
     state.dragId = null;
     renderAll();
   }
@@ -327,7 +334,7 @@
   function renderFiche() {
     const el = $("#fiche");
     const h = sel();
-    el.hidden = !h;
+    el.hidden = !h || !state.ficheOpen;
     if (!h) { el.innerHTML = ""; return; }
 
     const lc = lastContact(h);
@@ -340,7 +347,8 @@
         <div class="row">
           <i class="dot ${h.status}" style="width:14px;height:14px"></i>
           <input class="fiche-title" data-field="name" value="${esc(h.name)}" aria-label="Naam">
-          <button class="icon-btn" data-act="close" title="Sluiten">✕</button>
+          <button class="icon-btn show-on-map" data-act="show-map" title="Toon op kaart" aria-label="Toon op kaart"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg></button>
+          <button class="icon-btn" data-act="close" title="Sluiten" aria-label="Sluiten">✕</button>
         </div>
         <div class="status-pick">
           ${Object.entries(STATUS).map(([k, label]) => `<button class="${k} ${h.status === k ? "active" : ""}" data-status="${k}" title="${label}"><i class="dot ${k}"></i>${label.split(" /")[0]}</button>`).join("")}
@@ -472,6 +480,13 @@
     const id = b.dataset.id;
     switch (b.dataset.act) {
       case "close": return closeFiche();
+      case "show-map":
+        state.ficheOpen = false;
+        setView("map");
+        renderAll();
+        if (h.lat != null) map.flyTo([h.lat, h.lng], Math.max(map.getZoom(), 13), { duration: 0.6 });
+        else toast("Dit ziekenhuis heeft nog geen locatie");
+        return;
       case "add-contact": return contactDialog(h, null);
       case "edit-contact": return contactDialog(h, h.contacts.find((c) => c.id === id));
       case "primary": {
@@ -779,6 +794,7 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !$("#dialog").open) {
       if (state.placing) $("#cancelPlace").click();
+      else if (!menuList.hidden) toggleMenu(false);
       else if (state.selectedId) closeFiche();
     }
     if (e.key === "/" && document.activeElement === document.body) { e.preventDefault(); $("#search").focus(); }
@@ -839,15 +855,41 @@
 
   $("#logoutBtn").addEventListener("click", () => store.signOut());
 
-  // ---------- statistieken ----------
+  // ---------- schermen: lijst / kaart / statistieken ----------
+  // Op desktop staan lijst en kaart naast elkaar; op gsm kies je via de tabbalk.
   const statsView = $("#statsView");
-  function toggleStats(on) {
-    statsView.hidden = !on;
-    document.body.classList.toggle("stats-open", on);
-    $("#statsBtn").textContent = on ? "← Kaart" : "Statistieken";
-    if (on) window.FollowUpStats.render(state.db, statsView, scheduleSave);
-    else { window.FollowUpStats.hideTip(); setTimeout(() => map.invalidateSize(), 0); }
+  function setView(view) {
+    document.body.dataset.view = view;
+    statsView.hidden = view !== "stats";
+    $("#statsBtn").textContent = view === "stats" ? "← Kaart" : "Statistieken";
+    document.querySelectorAll(".tabbar [data-view]").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+    try { localStorage.setItem("followup-view", view); } catch (e) { /* privévenster */ }
+    if (view === "stats") window.FollowUpStats.render(state.db, statsView, scheduleSave);
+    else window.FollowUpStats.hideTip();
+    if (view === "map") setTimeout(() => map.invalidateSize(), 0);
   }
-  $("#statsBtn").addEventListener("click", () => toggleStats(statsView.hidden));
+  $("#statsBtn").addEventListener("click", () => setView(statsView.hidden ? "stats" : "map"));
+  document.querySelector(".tabbar").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.action === "add") return $("#addHospitalBtn").click();
+    state.ficheOpen = false;
+    renderFiche();
+    setView(b.dataset.view);
+  });
+  try {
+    const saved = localStorage.getItem("followup-view");
+    if (saved && saved !== "stats") setView(saved);
+  } catch (e) { /* privévenster */ }
+
+  // ---------- menu (⋯) ----------
+  const menuList = $("#menuList");
+  function toggleMenu(open) {
+    menuList.hidden = !open;
+    $("#menuBtn").setAttribute("aria-expanded", String(open));
+  }
+  $("#menuBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleMenu(menuList.hidden); });
+  menuList.addEventListener("click", () => toggleMenu(false));
+  document.addEventListener("click", (e) => { if (!e.target.closest(".menu")) toggleMenu(false); });
   init();
 })();
