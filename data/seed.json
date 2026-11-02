@@ -1,0 +1,1059 @@
+{
+  "version": 1,
+  "hospitals": [
+    {
+      "id": "cc17e9edcc",
+      "name": "Gold Coast Private Hospital",
+      "kind": "Ziekenhuis",
+      "sector": "Private",
+      "address": "14 Hill Street, Southport QLD 4215",
+      "lat": -27.9617,
+      "lng": 153.3832,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "e4ca6848f4",
+          "name": "Prof Rashid Muddassir",
+          "role": "Interventional Radiology",
+          "phone": "0438 827 847",
+          "email": "coastinterventionalradiology@gmail.com",
+          "address": "Queensland Xray, Ground Floor, Gold Coast Private Hospital\n14 Hill Street, Southport 4215",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "1783d45da4",
+          "name": "Dr Russell Manley",
+          "role": "Endocrine Surgeon",
+          "phone": "07 556 31 36 0",
+          "email": "",
+          "address": "Gold Coast Specialist Surgeons Suite 7, Gold Coast Private Hospital, 14 Hill Street,  Southport QLD 4215",
+          "product": "Thyroid",
+          "notes": "Also performs at Pindara",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "7b070cd787",
+      "name": "Pindara Private",
+      "kind": "Ziekenhuis",
+      "sector": "Private",
+      "address": "Allchurch Avenue, Benowa QLD 4217",
+      "lat": -28.0003,
+      "lng": 153.3966,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid",
+        "Fibroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "9b95fb35b2",
+          "name": "Dr Brian Fredericks",
+          "role": "Endocrinologist",
+          "phone": "07 5594 9496",
+          "email": "",
+          "address": "The Womens Health Centre, Suite 18, Level 1 14 Hill Street, Southport, QLD, 4215",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "26f562587c",
+          "name": "Dr Andrew Pastuszek",
+          "role": "Throat surgeon (special interest in thyroid)",
+          "phone": "07 5631 4080",
+          "email": "reception@ent-clinics.com.au",
+          "address": "AHC House 14 Carrara St Benowa QLD 4217",
+          "product": "Thyroid",
+          "notes": "Nr is from AHC House in general",
+          "primary": false
+        },
+        {
+          "id": "7a0c02e390",
+          "name": "Dr Matthew Cronin",
+          "role": "Head and Neck Surgeon",
+          "phone": "",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "GCU",
+          "primary": false
+        },
+        {
+          "id": "e60734d963",
+          "name": "Dr Samuel Dowthwaite",
+          "role": "Thyroid Surgeon",
+          "phone": "07 5631 4080",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "GCU + AHC House in Benowa + Nr is from AHC House in general",
+          "primary": false
+        },
+        {
+          "id": "214e9f0b6f",
+          "name": "Dr David Eriksen",
+          "role": "Interventional Radiologist",
+          "phone": "1300 197 297",
+          "email": "",
+          "address": "Pindara Private Hospital. Allchurch Avenue BENOWA, Queensland 4217, Australia",
+          "product": "Fibroid",
+          "notes": "Might be doing Thyroid aswell",
+          "primary": false
+        },
+        {
+          "id": "8a47e51861",
+          "name": "Dr Catherine Mills",
+          "role": "Gynaecologist",
+          "phone": "07 5662 5712",
+          "email": "",
+          "address": "Pindara Private Hospital; 13 Carrara Street; Benowa",
+          "product": "Fibroid",
+          "notes": "Fibroid resection etc. QueenslandFertilityGroup",
+          "primary": false
+        },
+        {
+          "id": "76db23b179",
+          "name": "Dr Michael Flynn",
+          "role": "Gynaecologist",
+          "phone": "07 5564 8011",
+          "email": "",
+          "address": "Pindara Place; 13 Carrara Street, Suite 3; Benowa, QLD, 4217",
+          "product": "Fibroid",
+          "notes": "Founder of fertility Gold Coast + in QueenslandFertilityGroup",
+          "primary": false
+        },
+        {
+          "id": "8e08b5cd0d",
+          "name": "Dr Jerome Melon",
+          "role": "Gynaecologist + Urogynaecology",
+          "phone": "07 5619 3010",
+          "email": "",
+          "address": "",
+          "product": "Fibroid",
+          "notes": "Also performing in Tugun (The Wahini House, 60 Cabarita Ave, Tugun QLD 4224)",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "64bf95a3a6",
+      "name": "John Flynn Private",
+      "kind": "Ziekenhuis",
+      "sector": "Private",
+      "address": "42 Inland Drive, Tugun QLD 4224",
+      "lat": -28.151,
+      "lng": 153.493,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid",
+        "Fibroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "33648eb4fa",
+          "name": "Dr Abhay Daniel",
+          "role": "Endocrinologist",
+          "phone": "07 3180 3015 Mob: 0403 669 477",
+          "email": "drabdaniel@outlook.com",
+          "address": "Suite 4G, Level 4, John Flynn Medical Centre, 42 Inland Drive, Tugun, QLD, 4224",
+          "product": "Thyroid",
+          "notes": "Also performs at Pindara and Ballina Outpatient Services",
+          "primary": false
+        },
+        {
+          "id": "2936b10dbd",
+          "name": "Dr Danielle Hgusn",
+          "role": "Endocrine Surgeon",
+          "phone": "07 5598 0644",
+          "email": "",
+          "address": "John Flynn Private Hospital; Level 4, Suite 402 John Flynn Specialist Suites, 42 Inland Drive, Tugun , QLD, 4224 (Consults at : Suite 14, Pindara Place, 13 Carrara Street, Pindara Private Hospital, Benowa, 4217)",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "ae074c5891",
+          "name": "Prof. Mikhail Sarofim",
+          "role": "Gynaecologist",
+          "phone": "07 5607 3288",
+          "email": "",
+          "address": "Suite 7E, Level 7, Fred McKay House, 42 Inland Drive; Tugun, QLD, 4224",
+          "product": "Fibroid",
+          "notes": "Fibroid care",
+          "primary": false
+        },
+        {
+          "id": "68fa5a81e2",
+          "name": "Dr. Tasveer Singh",
+          "role": "Gynaecologist / Fertility",
+          "phone": "",
+          "email": "",
+          "address": "Fred McKay House, Suite 7C; 42 Inland Drive, 42 Inland Drive; Tugun, QLD, 4224",
+          "product": "Fibroid",
+          "notes": "Fibroid care",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "2b246db6f6",
+      "name": "Gold Coast University",
+      "kind": "Ziekenhuis",
+      "sector": "University",
+      "address": "1 Hospital Boulevard, Southport QLD 4215",
+      "lat": -27.9609,
+      "lng": 153.3791,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "a3d11a4d93",
+          "name": "Algemeen nummer",
+          "role": "",
+          "phone": "1300 744 284",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "3abbda828b",
+      "name": "Robina Hospital",
+      "kind": "Ziekenhuis",
+      "sector": "Public",
+      "address": "2 Bayberry Lane, Robina QLD 4226",
+      "lat": -28.0773,
+      "lng": 153.3868,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Fibroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "d44859d829",
+          "name": "Dr Nicole Hutchison",
+          "role": "",
+          "phone": "07 5578 9000",
+          "email": "reception@rtmc.com.au",
+          "address": "Shop 5005, Robina Town Shopping Centre, 19 Robina Town Centre Drive, Robina QLD 4226",
+          "product": "Fibroid",
+          "notes": "Level 1; opposite Target",
+          "primary": false
+        },
+        {
+          "id": "26c99353bc",
+          "name": "Dr Colinette Margerison",
+          "role": "",
+          "phone": "07 5578 9000",
+          "email": "",
+          "address": "Shop 5005, Robina Town Shopping Centre, 19 Robina Town Centre Drive, Robina QLD 4226",
+          "product": "Fibroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "548908bf9a",
+          "name": "Dr Penny Byford",
+          "role": "",
+          "phone": "07 5503 6333",
+          "email": "",
+          "address": "Easy T; 42 Scottsdale Dr, Robina QLD 4226",
+          "product": "Fibroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "da9c955b85",
+          "name": "Dr Alice Hawes",
+          "role": "",
+          "phone": "07 5503 6333",
+          "email": "",
+          "address": "Easy T; 42 Scottsdale Dr, Robina QLD 4226",
+          "product": "Fibroid",
+          "notes": "",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "458140b98f",
+      "name": "Qscan",
+      "kind": "Ziekenhuis",
+      "sector": "Private",
+      "address": "183 Tufnell Rd, Banyo QLD 4014",
+      "lat": -27.3747,
+      "lng": 153.08,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "e3db25f47d",
+          "name": "Dr Kevin Lee",
+          "role": "Endocrinologist",
+          "phone": "",
+          "email": "",
+          "address": "183 Tufnell Rd, Banyo QLD 4014",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "c1147908a5",
+      "name": "Royal Brisbane & Women's",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "Butterfield St, Herston QLD 4006",
+      "lat": -27.4485,
+      "lng": 153.0279,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid",
+        "Fibroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "990baa238f",
+          "name": "Dr Jonathan Robertson",
+          "role": "Interventional radiologist",
+          "phone": "",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "94a420b04b",
+          "name": "Algemeen nummer",
+          "role": "",
+          "phone": "07 3497 3588",
+          "email": "",
+          "address": "Ground floor, Ned Hanlon Building",
+          "product": "Fibroid",
+          "notes": "Fibroid care",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "17382d79b6",
+      "name": "The Prince Charles",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "Rode Rd, Chermside QLD 4032",
+      "lat": -27.393,
+      "lng": 153.0315,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "8f186e9433",
+          "name": "Dr Brendon May",
+          "role": "",
+          "phone": "",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "Also in Inetic in Benowa (192 Ashmore Road)",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "3f1223e0bc",
+      "name": "Princess Alexandra - Woolloongabba",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "199 Ipswich Rd, Woolloongabba QLD 4102",
+      "lat": -27.499,
+      "lng": 153.0335,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [],
+      "activities": []
+    },
+    {
+      "id": "1f1447d558",
+      "name": "Queensland Children's",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "501 Stanley St, South Brisbane QLD 4101",
+      "lat": -27.4839,
+      "lng": 153.0261,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [],
+      "activities": []
+    },
+    {
+      "id": "95aa05501a",
+      "name": "Queen Elizabeth II Jubilee",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "Kessels Rd, Coopers Plains QLD 4108",
+      "lat": -27.5643,
+      "lng": 153.0386,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [],
+      "activities": []
+    },
+    {
+      "id": "003cf0f01b",
+      "name": "Greenslopes",
+      "kind": "Ziekenhuis",
+      "sector": "Private",
+      "address": "Newdegate St, Greenslopes QLD 4120",
+      "lat": -27.5085,
+      "lng": 153.0466,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid",
+        "Fibroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "09e54ccf5f",
+          "name": "Dr Viral Chikani",
+          "role": "Endocrinologist",
+          "phone": "07 3319 6566",
+          "email": "admin@greenslopesendo.com.au",
+          "address": "G15 building, Ground floor, Greenslopes Private Hospital; 121 Newdegate street; Greenslopes 4120",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "0304de6721",
+          "name": "Dr Yu-Chin Lo",
+          "role": "Endocrinologist",
+          "phone": "",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "be7141967b",
+          "name": "Dr Rakesh Malhotra",
+          "role": "Endocrinologist",
+          "phone": "",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "73a95602ba",
+          "name": "Prof Russell Land",
+          "role": "Gynaecologist",
+          "phone": "07 3847 7879",
+          "email": "",
+          "address": "Greenslopes Specialist Gynaecology, Level 2, Suite 208; Ramsay Specialist Centre, Newdegate Street; GREENSLOPES, QLD, 4120",
+          "product": "Fibroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "2a7f37c0bc",
+          "name": "Dr Ken Law",
+          "role": "Gynaecologist",
+          "phone": "07 3188 5000",
+          "email": "info@gsog.com.au",
+          "address": "Greenslopes Obstetrics and Gynaecology; Suite 7.101, Level 7; 83 Nicholson Street; Nicholson Street Specialist Centre; Greenslopes Private Hospital; Greenslopes QLD 4120",
+          "product": "Fibroid",
+          "notes": "fibroid removal",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "6c328d9612",
+      "name": "The Wesley",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "451 Coronation Dr, Auchenflower QLD 4066",
+      "lat": -27.4757,
+      "lng": 152.994,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "f3367bc424",
+          "name": "Dr Lachlan Inch",
+          "role": "Interventional Radiologist",
+          "phone": "",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "368fa42720",
+      "name": "Mater Private",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "301 Vulture St, South Brisbane QLD 4101",
+      "lat": -27.4858,
+      "lng": 153.0292,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid",
+        "Fibroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "4242190291",
+          "name": "Dr Tim Eviston",
+          "role": "Head and neck Surgeon (focus includes thyroid)",
+          "phone": "",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "7d29110108",
+          "name": "Dr Albert Jung",
+          "role": "Gynaecologist",
+          "phone": "07 3015 3155",
+          "email": "",
+          "address": "",
+          "product": "Fibroid",
+          "notes": "Queensland Fertility Group Spring Hill - Wharf Street",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "e2b2549474",
+      "name": "St Andrew's War Memorial",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "457 Wickham Ter, Spring Hill QLD 4000",
+      "lat": -27.462,
+      "lng": 153.0248,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [],
+      "activities": []
+    },
+    {
+      "id": "6e124ff144",
+      "name": "Sunnybank",
+      "kind": "Ziekenhuis",
+      "sector": "Private",
+      "address": "245 McCullough St, Sunnybank QLD 4109",
+      "lat": -27.577,
+      "lng": 153.059,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "22d0b488f4",
+          "name": "Dr Jeremy Khoo",
+          "role": "Thyroid Surgeon",
+          "phone": "07 3344 2205",
+          "email": "admin@sunnybanksurgical.com.au",
+          "address": "Sunnybank Surgical Group; Suite 7, McCullough Centre; 259 McCullough Street, Sunnybank QLD 4109",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "5889b48d8a",
+      "name": "St Vincent's Northside",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "627 Rode Rd, Chermside QLD 4032",
+      "lat": -27.387,
+      "lng": 153.033,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "9d2220a82e",
+          "name": "Prof Lizbeth Kenny",
+          "role": "Interventional Radiologist (thyroid)",
+          "phone": "0439 112 497",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "89eb9d12fe",
+      "name": "St Vincent's Kangaroo Point",
+      "kind": "Ziekenhuis",
+      "sector": "",
+      "address": "411 Main St, Kangaroo Point QLD 4169",
+      "lat": -27.478,
+      "lng": 153.036,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [],
+      "activities": []
+    },
+    {
+      "id": "053423a7cd",
+      "name": "St Andrew’s Ipswich Private Hospital",
+      "kind": "Ziekenhuis",
+      "sector": "Private",
+      "address": "Roderick St, Ipswich QLD 4305",
+      "lat": -27.6155,
+      "lng": 152.76,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "50f3a5b9e5",
+          "name": "Dr Aung Min",
+          "role": "Endocrinologist",
+          "phone": "07 3073 1586",
+          "email": "",
+          "address": "Antenor House, suite 3 16 South Street; Ipswich, QLD, 4305",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "0355639351",
+          "name": "Dr Laura Careless",
+          "role": "Endocrinologist",
+          "phone": "07 3472 6107",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "a1769ef619",
+          "name": "Dr Man-Shun Wong",
+          "role": "Endocrine surgery",
+          "phone": "07 32829319",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "70421c5665",
+      "name": "Mermaid Beach Radiology",
+      "kind": "Ziekenhuis",
+      "sector": "Private",
+      "address": "2469 Gold Coast Highway, Mermaid Beach QLD 4218",
+      "lat": -28.044,
+      "lng": 153.435,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "019edead0c",
+          "name": "Algemeen nummer",
+          "role": "",
+          "phone": "+61 7 5619 9499",
+          "email": "info@mermaidbeachradiology.com.au",
+          "address": "2469 Gold Coast Highway, Mermaid Beach QLD 4218",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "65311725ba",
+      "name": "Sunshine Coast University Private Hospital",
+      "kind": "Ziekenhuis",
+      "sector": "Private",
+      "address": "3 Doherty Street, Birtinya QLD 4575",
+      "lat": -26.748,
+      "lng": 153.116,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid",
+        "Fibroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "46875b72ee",
+          "name": "Dr Deepali Shirkhedkar",
+          "role": "Endocrinologist",
+          "phone": "07 3448 0195",
+          "email": "",
+          "address": "Sunshine Coast University Private Hospital 3 Doherty Street",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "693c21250d",
+          "name": "Dr Mara Clarson",
+          "role": "Endocrine Surgeon",
+          "phone": "07 5437 9788",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "5912388e98",
+          "name": "Dr Roderick McMurray",
+          "role": "Endocrine Surgeon",
+          "phone": "1300 280 085",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "f83e7f50a8",
+          "name": "Dr David Hogan",
+          "role": "Head and neck Surgeon",
+          "phone": "07 5343 3089",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "445110c2a0",
+          "name": "Dr Paul Leschke",
+          "role": "Interventional radiologist",
+          "phone": "",
+          "email": "",
+          "address": "Vascular and Interventional Radiology Queensland (VIRQ), Suite 20; Sunshine Coast University Private Hospital, 3 Doherty Street; BIRTINYA, QLD, 4575",
+          "product": "Fibroid",
+          "notes": "Embolisation for uterine fibroids",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "2e903f322c",
+      "name": "Australian Thyroid Foundation",
+      "kind": "Organisatie",
+      "sector": "",
+      "address": "Reserve Road, St Leonards NSW 2065",
+      "lat": -33.8228,
+      "lng": 151.195,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Thyroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "51d01e929e",
+          "name": "Professor Bruce G. Robinson AC",
+          "role": "Endocrinologist",
+          "phone": "02 9926 4595",
+          "email": "info@thyroidfoundation.org.au",
+          "address": "Level 7, Kolling Building, Reserve Road, St Leonards NSW 2065",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "cba84f47f3",
+          "name": "Professor Leigh Delbridge AM",
+          "role": "Specialist Parathyroid and Thyroid Surgeon",
+          "phone": "+61 2 9438 2900",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "f117677ac3",
+          "name": "Professor Duncan Topliss AM",
+          "role": "Endocrinologist",
+          "phone": "",
+          "email": "Duncan.Topliss@monash.edu",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "0a1e3a7d1b",
+          "name": "Professor Roderick (Rory) Clifton Bligh",
+          "role": "Endocrinologist",
+          "phone": "02 9926 7111",
+          "email": "oderick.cliftonbligh@health.nsw.au",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "cd6a3ba552",
+          "name": "Professor Julie Miller",
+          "role": "Specialist Endocrine Surgeon",
+          "phone": "(03) 9347-8786",
+          "email": "info@parathyroid.com.au",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "12ea96f5a0",
+          "name": "Professor Mark Sywak",
+          "role": "Specialist Endocrine Surgeon",
+          "phone": "(02) 9030 1655",
+          "email": "marksywak@nebsc.com.au",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "12d465de51",
+          "name": "Professor Jack Wall",
+          "role": "Endocrinologist",
+          "phone": "+61 3 5970 5333",
+          "email": "",
+          "address": "",
+          "product": "Thyroid",
+          "notes": "",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "5faca3ab41",
+      "name": "Fibroid Foundation",
+      "kind": "Organisatie",
+      "sector": "",
+      "address": "525 Boundary Street, Spring Hill QLD 4000",
+      "lat": -27.46,
+      "lng": 153.028,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Fibroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "",
+      "contacts": [
+        {
+          "id": "18cef0d84b",
+          "name": "Algemeen nummer",
+          "role": "",
+          "phone": "",
+          "email": "info@fibroidfoundation.org",
+          "address": "Queensland Fertility Group Boundary Street Suite 5, Level 9, 525 Boundary Street, Spring Hill QLD 4000",
+          "product": "Fibroid",
+          "notes": "Queensland Fertility Group Spring Hill - Wharf Street",
+          "primary": false
+        }
+      ],
+      "activities": []
+    },
+    {
+      "id": "d70570a8b2",
+      "name": "QueenslandFertilityGroup",
+      "kind": "Organisatie",
+      "sector": "",
+      "address": "Wharf Street, Spring Hill QLD 4000",
+      "lat": -27.4655,
+      "lng": 153.03,
+      "status": "red",
+      "stage": "Prospect",
+      "products": [
+        "Fibroid"
+      ],
+      "nextAction": "",
+      "nextActionDate": "",
+      "notes": "Meer leads: https://www.qfg.com.au/fertility-specialists/doctors",
+      "contacts": [
+        {
+          "id": "cdbcfa3224",
+          "name": "Professor Hayden Homer",
+          "role": "Everything (huge lead)",
+          "phone": "",
+          "email": "",
+          "address": "",
+          "product": "Fibroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "509a991e37",
+          "name": "Dr Charlotte Mooring",
+          "role": "Gynaecologist",
+          "phone": "07 3145 0360",
+          "email": "",
+          "address": "",
+          "product": "Fibroid",
+          "notes": "",
+          "primary": false
+        },
+        {
+          "id": "5600b7ebfb",
+          "name": "Dr Eva Kretowicz",
+          "role": "Polish!! Gynaecologist",
+          "phone": "07 3831 4090",
+          "email": "",
+          "address": "",
+          "product": "Fibroid",
+          "notes": "Polish connection, studied in Gdansk",
+          "primary": false
+        }
+      ],
+      "activities": []
+    }
+  ]
+}
