@@ -23,6 +23,7 @@
       <button class="btn ghost" id="importBtn" title="Importeer een JSON-back-up">Importeer</button>
       <input type="file" id="importFile" accept="application/json" hidden>
       <button class="btn primary" id="addHospitalBtn">+ Ziekenhuis</button>
+      <button class="btn ghost" id="logoutBtn" hidden>Afmelden</button>
     </div>
   </header>
 
@@ -68,7 +69,21 @@
   <dialog id="dialog"><form method="dialog" id="dialogForm"></form></dialog>
   <div class="toast" id="toast" hidden></div>
 
+  <div class="login" id="login" hidden>
+    <form class="login-card" id="loginForm">
+      <h2>FollowUp Vaseo</h2>
+      <p class="muted">Meld je aan om verder te gaan.</p>
+      <label class="field">E-mail<input name="email" type="email" autocomplete="username" required></label>
+      <label class="field">Wachtwoord<input name="password" type="password" autocomplete="current-password" required></label>
+      <p class="login-error" id="loginError"></p>
+      <button class="btn primary" type="submit">Aanmelden</button>
+    </form>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
+  <script src="config.js"></script>
+  <script src="storage.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

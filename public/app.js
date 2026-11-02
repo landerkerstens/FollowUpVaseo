@@ -32,6 +32,7 @@
     dragId: null,
   };
   const markers = new Map();
+  const store = window.FollowUpStore;
   const $ = (sel, root = document) => root.querySelector(sel);
 
   // ---------- helpers ----------
@@ -79,25 +80,33 @@
   }
   async function save() {
     try {
-      const res = await fetch("/api/data", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(state.db),
-      });
-      if (!res.ok) throw new Error((await res.json()).error || res.status);
+      await store.save(state.db);
       $("#saveState").textContent = "✓ Opgeslagen";
     } catch (e) {
       $("#saveState").textContent = "Niet opgeslagen!";
       $("#saveState").classList.add("error");
-      showBanner("Opslaan mislukt. Draait server.py nog? Je wijzigingen staan alleen nog in dit venster. (" + e.message + ")");
+      if (e instanceof store.ConflictError) {
+        showBanner("De data werd ondertussen op een ander toestel gewijzigd. Herlaad de pagina; je laatste wijziging hier werd niet opgeslagen.", true);
+      } else {
+        const hint = store.mode === "local" ? "Draait server.py nog?" : "Ben je nog online?";
+        showBanner(`Opslaan mislukt. ${hint} Je wijzigingen staan alleen nog in dit venster. (${e.message})`);
+      }
     }
   }
   window.addEventListener("beforeunload", (e) => {
     if (saveTimer && $("#saveState").textContent !== "✓ Opgeslagen") { e.preventDefault(); }
   });
-  function showBanner(msg) {
+  function showBanner(msg, reload = false) {
     const b = $("#banner");
     b.textContent = msg;
+    if (reload) {
+      const btn = document.createElement("button");
+      btn.className = "btn small";
+      btn.textContent = "Herlaad";
+      btn.style.marginLeft = "10px";
+      btn.onclick = () => location.reload();
+      b.append(btn);
+    }
     b.hidden = !msg;
   }
   function normalize(h) {
@@ -685,17 +694,47 @@
 
   async function init() {
     try {
-      const res = await fetch("/api/data", { cache: "no-store" });
-      if (!res.ok) throw new Error(res.status);
-      state.db = await res.json();
+      await store.ready();
+      const { db, empty } = await store.load();
+      state.db = db;
       state.db.hospitals.forEach(normalize);
       $("#saveState").textContent = "✓ Opgeslagen";
+      if (empty) offerSeed();
     } catch (e) {
-      showBanner("Kan de data niet laden. Start de website met: python3 server.py  en open http://localhost:8080");
+      showBanner(e.message);
     }
+    if (store.mode === "supabase") $("#logoutBtn").hidden = false;
     renderAll();
     map.invalidateSize();
     fitAll();
   }
+
+  // Lege online databank: startlijst (uit de Excel) laden of een back-up importeren.
+  function offerSeed() {
+    const b = $("#banner");
+    b.textContent = "De online databank is nog leeg. ";
+    const btn = document.createElement("button");
+    btn.className = "btn small primary";
+    btn.textContent = "Laad startlijst uit Excel";
+    btn.onclick = async () => {
+      try {
+        const res = await fetch("../data/seed.json", { cache: "no-store" });
+        if (!res.ok) throw new Error(res.status);
+        state.db = await res.json();
+        state.db.hospitals.forEach(normalize);
+        showBanner("");
+        scheduleSave();
+        renderAll();
+        fitAll();
+        toast(`${state.db.hospitals.length} ziekenhuizen geladen`);
+      } catch (e) {
+        alert("Startlijst niet gevonden. Gebruik Importeer met een JSON-back-up.");
+      }
+    };
+    b.append(btn, " of gebruik Importeer met een JSON-back-up.");
+    b.hidden = false;
+  }
+
+  $("#logoutBtn").addEventListener("click", () => store.signOut());
   init();
 })();
