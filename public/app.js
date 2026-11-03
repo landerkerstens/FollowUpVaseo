@@ -541,6 +541,7 @@
   // ---------- adres zoeken (Photon / OpenStreetMap, geen API-sleutel nodig) ----------
   // Toont suggesties onder het invoerveld; onPick krijgt { address, lat, lng }.
   const NUMBER_FIRST = ["AU", "NZ", "US", "CA", "GB", "IE"];
+  const AU_BBOX = [112, -44, 154, -10]; // west, zuid, oost, noord
   function addressLabel(p) {
     const nr = [p.housenumber, p.street];
     const street = (NUMBER_FIRST.includes(p.countrycode) ? nr : nr.reverse()).filter(Boolean).join(" ");
@@ -580,10 +581,15 @@
     async function search(q) {
       const my = ++seq;
       try {
-        // Voorrang aan resultaten rond het deel van de wereld dat de kaart nu toont.
+        // Enkel Australië; voorrang aan wat de kaart toont, anders rond Brisbane.
+        // Niets gevonden in Australië? Dan pas wereldwijd zoeken.
         const c = map.getCenter();
-        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lat=${c.lat.toFixed(3)}&lon=${c.lng.toFixed(3)}`);
-        const json = await res.json();
+        const inAU = c.lng >= AU_BBOX[0] && c.lat >= AU_BBOX[1] && c.lng <= AU_BBOX[2] && c.lat <= AU_BBOX[3];
+        const [lat, lon] = inAU ? [c.lat.toFixed(3), c.lng.toFixed(3)] : [-27.47, 153.03];
+        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lat=${lat}&lon=${lon}`;
+        let json = await (await fetch(`${url}&bbox=${AU_BBOX.join(",")}`)).json();
+        if (my !== seq) return;
+        if (!json.features.length) json = await (await fetch(url)).json();
         if (my !== seq) return;
         const seen = new Set();
         results = json.features.map((f) => ({
