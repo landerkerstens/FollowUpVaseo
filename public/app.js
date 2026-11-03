@@ -457,6 +457,15 @@
         <button class="btn danger" data-act="delete">Verwijder</button>
         <button class="btn" data-act="close">Sluiten</button>
       </div>`;
+    attachAddressSearch(el.querySelector('[data-field="address"]'), (r) => {
+      h.address = r.address;
+      h.lat = r.lat;
+      h.lng = r.lng;
+      scheduleSave();
+      renderAll();
+      focusOn(h);
+      toast("Adres en locatie ingesteld");
+    });
   }
 
   // Velden in de fiche: opslaan zonder volledige herteken (focus blijft).
@@ -527,6 +536,100 @@
     h.status = status;
     scheduleSave();
     renderAll();
+  }
+
+  // ---------- adres zoeken (Photon / OpenStreetMap, geen API-sleutel nodig) ----------
+  // Toont suggesties onder het invoerveld; onPick krijgt { address, lat, lng }.
+  const NUMBER_FIRST = ["AU", "NZ", "US", "CA", "GB", "IE"];
+  function addressLabel(p) {
+    const nr = [p.housenumber, p.street];
+    const street = (NUMBER_FIRST.includes(p.countrycode) ? nr : nr.reverse()).filter(Boolean).join(" ");
+    const pc = [p.postcode, p.city || p.district || p.county];
+    const place = (NUMBER_FIRST.includes(p.countrycode) ? pc.reverse() : pc).filter(Boolean).join(" ");
+    return [...new Set([p.name, street, place, p.state].filter(Boolean))].join(", ");
+  }
+  function attachAddressSearch(input, onPick) {
+    const list = document.createElement("ul");
+    list.className = "addr-list";
+    list.hidden = true;
+    input.after(list);
+    let results = [], active = -1, timer = null, seq = 0;
+
+    const close = () => { list.hidden = true; active = -1; };
+    const paint = () => {
+      list.innerHTML = results.length
+        ? results.map((r, i) => `<li data-i="${i}" class="${i === active ? "active" : ""}">${esc(r.address)}</li>`).join("")
+        : `<li class="addr-empty">Geen resultaten — je kan de locatie ook manueel op de kaart aanduiden.</li>`;
+      // Vast gepositioneerd zodat de lijst niet afgesneden wordt door een scrollend dialoogvenster of fiche.
+      const r = input.getBoundingClientRect();
+      const below = innerHeight - r.bottom - 12;
+      list.style.left = r.left + "px";
+      list.style.width = r.width + "px";
+      list.style.maxHeight = Math.min(260, Math.max(below, r.top - 12)) + "px";
+      if (below >= 160 || below >= r.top) { list.style.top = r.bottom + 4 + "px"; list.style.bottom = ""; }
+      else { list.style.bottom = innerHeight - r.top + 4 + "px"; list.style.top = ""; }
+      list.hidden = false;
+    };
+    const pick = (i) => {
+      const r = results[i];
+      if (!r) return;
+      input.value = r.address;
+      close();
+      onPick(r);
+    };
+    async function search(q) {
+      const my = ++seq;
+      try {
+        // Voorrang aan resultaten rond het deel van de wereld dat de kaart nu toont.
+        const c = map.getCenter();
+        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lat=${c.lat.toFixed(3)}&lon=${c.lng.toFixed(3)}`);
+        const json = await res.json();
+        if (my !== seq) return;
+        const seen = new Set();
+        results = json.features.map((f) => ({
+          address: addressLabel(f.properties),
+          lat: +f.geometry.coordinates[1].toFixed(5),
+          lng: +f.geometry.coordinates[0].toFixed(5),
+        })).filter((r) => !seen.has(r.address) && seen.add(r.address));
+        active = -1;
+        if (document.activeElement === input) paint();
+      } catch (e) {
+        if (my === seq) close();
+      }
+    }
+
+    input.setAttribute("autocomplete", "off");
+    input.placeholder = "Typ adres of naam ziekenhuis…";
+    input.addEventListener("input", () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (q.length < 3) { seq++; return close(); }
+      timer = setTimeout(() => search(q), 300);
+    });
+    input.addEventListener("keydown", (e) => {
+      if (list.hidden || !results.length) return;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        active = (active + (e.key === "ArrowDown" ? 1 : -1) + results.length) % results.length;
+        paint();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        pick(active < 0 ? 0 : active);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        close();
+      }
+    });
+    input.addEventListener("blur", () => setTimeout(close, 150));
+    // Bij scrollen van de omliggende container klopt de positie niet meer.
+    document.addEventListener("scroll", (e) => { if (!list.hidden && !list.contains(e.target)) close(); }, true);
+    // mousedown i.p.v. click: anders verliest het veld eerst de focus en sluit de lijst.
+    list.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      const li = e.target.closest("li[data-i]");
+      if (li) pick(+li.dataset.i);
+    });
   }
 
   // ---------- dialogen ----------
@@ -700,20 +803,40 @@
         <label class="field full">Naam<input name="name" required></label>
         <label class="field full">Publiek / privé<select name="sector"><option value="">—</option><option>Public</option><option>Private</option><option>University</option></select></label>
         <label class="field full">Adres<input name="address"></label>
+        <input type="hidden" name="lat"><input type="hidden" name="lng">
       </div>
-      <p class="muted">Na het opslaan klik je op de kaart om de locatie te kiezen.</p>
+      <p class="muted" id="addrHint">Kies een suggestie om de locatie automatisch in te stellen. Anders klik je na het opslaan op de kaart.</p>
       <div class="actions">
         <button class="btn" value="cancel" formnovalidate>Annuleer</button>
         <button class="btn primary" value="ok">Aanmaken</button>
       </div>`, (data) => {
+      const hasLoc = data.lat !== "" && data.lng !== "";
       const h = normalize({
         id: uid(), name: data.name.trim(), sector: data.sector, address: data.address.trim(),
-        lat: null, lng: null, status: "red", stage: "Prospect", products: [], nextAction: "", nextActionDate: "", notes: "",
+        lat: hasLoc ? +data.lat : null, lng: hasLoc ? +data.lng : null, status: "red", stage: "Prospect", products: [], nextAction: "", nextActionDate: "", notes: "",
       });
       state.db.hospitals.push(h);
       scheduleSave();
-      select(h.id, false);
-      startPlacing(h.id);
+      if (hasLoc) {
+        select(h.id, true);
+        toast("Ziekenhuis aangemaakt op de kaart");
+      } else {
+        select(h.id, false);
+        startPlacing(h.id);
+      }
+    });
+    const form = $("#dialogForm");
+    const addr = form.querySelector('[name="address"]');
+    attachAddressSearch(addr, (r) => {
+      form.lat.value = r.lat;
+      form.lng.value = r.lng;
+      $("#addrHint").textContent = "✓ Locatie gevonden — wordt automatisch op de kaart gezet.";
+    });
+    // Adres na het kiezen nog aangepast? Dan geldt de gekozen locatie niet meer.
+    addr.addEventListener("input", () => {
+      if (!form.lat.value) return;
+      form.lat.value = form.lng.value = "";
+      $("#addrHint").textContent = "Kies een suggestie om de locatie automatisch in te stellen. Anders klik je na het opslaan op de kaart.";
     });
   });
 

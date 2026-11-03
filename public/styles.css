@@ -271,6 +271,16 @@ label.field input[type="checkbox"] { width: 18px; min-height: 18px; height: 18px
 .type-pill { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
 .fiche-foot { padding: 16px 20px 32px; display: flex; justify-content: space-between; gap: 8px; }
 
+/* ---------- adres zoeken ---------- */
+.addr-list {
+  position: fixed; z-index: 1200; margin: 0; padding: 4px 0; list-style: none;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-float);
+  max-height: 260px; overflow-y: auto;
+}
+.addr-list li { padding: 9px 12px; font-size: 13.5px; font-weight: 400; color: var(--ink); cursor: pointer; line-height: 1.35; }
+.addr-list li:hover, .addr-list li.active { background: var(--hover); }
+.addr-list li.addr-empty { color: var(--muted); cursor: default; background: none; }
+
 /* ---------- dialoog ---------- */
 dialog {
   border: 0; border-radius: var(--radius-lg); padding: 0; width: min(640px, 94vw); max-height: 92dvh;
