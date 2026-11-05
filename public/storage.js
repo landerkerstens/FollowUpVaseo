@@ -26,6 +26,16 @@ window.FollowUpStore = (() => {
       });
       if (!res.ok) throw new Error((await res.json()).error || res.status);
     },
+    async backups() {
+      const res = await fetch("/api/backups", { cache: "no-store" });
+      if (!res.ok) throw new Error(res.status);
+      return (await res.json()).map((day) => ({ key: day, label: day }));
+    },
+    async backup(key) {
+      const res = await fetch(`/api/backups/${encodeURIComponent(key)}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(res.status);
+      return res.json();
+    },
     async signOut() {},
   };
 
@@ -33,6 +43,7 @@ window.FollowUpStore = (() => {
 
   const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
   let lastUpdated = null; // versie die we laatst gelezen/geschreven hebben
+  const stamp = (iso) => new Date(iso).toLocaleString("nl-BE", { dateStyle: "medium", timeStyle: "short" });
 
   function showLogin() {
     return new Promise((resolve) => {
@@ -65,9 +76,12 @@ window.FollowUpStore = (() => {
   return {
     mode: "supabase",
     ConflictError,
+    userEmail: "",
     async ready() {
       const { data } = await client.auth.getSession();
       if (!data.session) await showLogin();
+      const { data: after } = await client.auth.getSession();
+      this.userEmail = (after.session && after.session.user.email) || "";
     },
     async load() {
       const { data, error } = await client.from("app_state").select("data, updated_at").eq("id", ROW).maybeSingle();
@@ -94,6 +108,23 @@ window.FollowUpStore = (() => {
         if (!data.length) throw new ConflictError();
       }
       lastUpdated = now;
+    },
+    // Automatische versies: de nieuwe historiek als die al bestaat (zie schema.sql), anders de dagkopieën.
+    async backups() {
+      const hist = await client.from("app_state_history").select("seq, saved_at").eq("id", ROW).order("saved_at", { ascending: false }).limit(60);
+      if (!hist.error) return hist.data.map((b) => ({ key: `h${b.seq}`, label: stamp(b.saved_at) }));
+      const { data, error } = await client.from("app_state_backups").select("day, saved_at").eq("id", ROW).order("day", { ascending: false }).limit(60);
+      if (error) throw new Error(error.message);
+      return data.map((b) => ({ key: `d${b.day}`, label: stamp(b.saved_at) }));
+    },
+    async backup(key) {
+      const value = key.slice(1);
+      const query = key[0] === "h"
+        ? client.from("app_state_history").select("data").eq("seq", value)
+        : client.from("app_state_backups").select("data").eq("id", ROW).eq("day", value);
+      const { data, error } = await query.single();
+      if (error) throw new Error(error.message);
+      return data.data;
     },
     async signOut() {
       await client.auth.signOut();

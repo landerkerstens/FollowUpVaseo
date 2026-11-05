@@ -8,16 +8,17 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="FollowUp">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self' https://gmiefdoeezfobquwxyve.supabase.co https://photon.komoot.io; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>FollowUp Vaseo</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="styles.css?v=202611031400">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="styles.css?v=202611051200">
 </head>
-<body data-view="map">
+<body data-view="today">
   <header class="topbar">
     <div class="brand">
       <img class="brand__logo" src="logo.svg" alt="Vaseo Medical">
@@ -25,8 +26,13 @@
     </div>
     <div class="kpis" id="kpis"></div>
     <div class="top-actions">
-      <span class="save-state" id="saveState"></span>
-      <button class="btn ghost desktop-only" id="statsBtn">Statistieken</button>
+      <span class="save-state" id="saveState" role="status" aria-live="polite"></span>
+      <nav class="view-nav desktop-only" id="viewNav" aria-label="Schermen">
+        <button class="btn ghost" data-view="today">Vandaag</button>
+        <button class="btn ghost" data-view="map">Kaart</button>
+        <button class="btn ghost" data-view="stats">Statistieken</button>
+      </nav>
+      <button class="btn ghost desktop-only" id="logBtn">Log contact</button>
       <button class="btn primary desktop-only" id="addHospitalBtn">+ Ziekenhuis</button>
       <div class="menu">
         <button class="btn ghost icon" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-label="Meer">
@@ -34,6 +40,7 @@
         </button>
         <div class="menu__list" id="menuList" hidden>
           <button id="exportBtn">Exporteren</button>
+          <button id="backupsBtn">Back-ups terugzetten</button>
           <button id="importBtn">Back-up importeren</button>
           <button id="logoutBtn" hidden>Afmelden</button>
         </div>
@@ -42,25 +49,31 @@
     </div>
   </header>
 
-  <div class="banner" id="banner" hidden></div>
+  <div class="banner" id="banner" role="alert" hidden></div>
 
   <main class="layout">
     <aside class="sidebar">
       <div class="search">
         <svg class="search__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="search" type="search" placeholder="Zoek ziekenhuis, arts of stad…" autocomplete="off" enterkeyhint="search">
+        <input id="search" type="search" aria-label="Zoek ziekenhuis, arts of stad" placeholder="Zoek ziekenhuis, arts of stad…" autocomplete="off" enterkeyhint="search">
       </div>
-      <div class="filters" id="statusFilters">
-        <button class="chip active" data-status="all">Alle</button>
-        <button class="chip" data-status="green"><i class="dot green"></i>Verkoop</button>
-        <button class="chip" data-status="orange"><i class="dot orange"></i>In progress</button>
-        <button class="chip" data-status="red"><i class="dot red"></i>Geen contact</button>
+      <div class="filters" id="dueFilters" role="group" aria-label="Filter op opvolging">
+        <button class="chip active" data-due="all" aria-pressed="true">Alles</button>
+        <button class="chip" data-due="overdue" aria-pressed="false">Actie te laat</button>
+        <button class="chip" data-due="noAction" aria-pressed="false">Geen actie</button>
+        <button class="chip" data-due="stale" aria-pressed="false">Lang stil</button>
       </div>
-      <div class="filters" id="productFilters">
-        <button class="chip active" data-product="all">Alle producten</button>
-        <button class="chip" data-product="Thyroid">Thyroid</button>
-        <button class="chip" data-product="Fibroid">Fibroid</button>
-        <button class="chip" data-product="overdue">Actie te laat</button>
+      <div class="filters" id="statusFilters" role="group" aria-label="Filter op status">
+        <button class="chip active" data-status="all" aria-pressed="true">Alle</button>
+        <button class="chip" data-status="green" aria-pressed="false"><i class="dot green" aria-hidden="true"></i>Aan het verkopen</button>
+        <button class="chip" data-status="orange" aria-pressed="false"><i class="dot orange" aria-hidden="true"></i>In progress</button>
+        <button class="chip" data-status="red" aria-pressed="false"><i class="dot red" aria-hidden="true"></i>Nog geen contact</button>
+        <button class="chip" data-status="grey" aria-pressed="false"><i class="dot grey" aria-hidden="true"></i>Niet geïnteresseerd</button>
+      </div>
+      <div class="filters" id="productFilters" role="group" aria-label="Filter op product">
+        <button class="chip active" data-product="all" aria-pressed="true">Alle producten</button>
+        <button class="chip" data-product="Thyroid" aria-pressed="false">Thyroid</button>
+        <button class="chip" data-product="Fibroid" aria-pressed="false">Fibroid</button>
       </div>
       <ul class="list" id="list"></ul>
     </aside>
@@ -72,38 +85,46 @@
         <button class="btn small" id="ausBtn">Heel Australië</button>
       </div>
       <div class="legend">
-        <span><i class="dot green"></i>Aan het verkopen</span>
-        <span><i class="dot orange"></i>In progress / actie nodig</span>
-        <span><i class="dot red"></i>Nog geen contact</span>
+        <span><i class="dot green" aria-hidden="true"></i>Aan het verkopen</span>
+        <span><i class="dot orange" aria-hidden="true"></i>In progress</span>
+        <span><i class="dot red" aria-hidden="true"></i>Nog geen contact</span>
+        <span><i class="dot grey" aria-hidden="true"></i>Niet geïnteresseerd</span>
       </div>
       <div class="place-hint" id="placeHint" hidden>Tik op de kaart om de locatie te kiezen · <button class="link" id="cancelPlace">Annuleer</button></div>
+      <div class="place-hint" id="dragHint" hidden>Sleep de marker naar de juiste plek · <button class="link" id="dragDone">Klaar</button></div>
+      <div class="map-filter" id="mapFilter" hidden><span id="mapFilterText"></span> <button class="link" id="mapFilterReset">Wissen</button></div>
     </section>
 
     <aside class="fiche" id="fiche" hidden></aside>
     <section class="stats-view" id="statsView" hidden></section>
+    <section class="stats-view today-view" id="todayView" hidden></section>
   </main>
 
   <nav class="tabbar" aria-label="Navigatie">
+    <button data-view="today">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
+      Vandaag
+    </button>
     <button data-view="list">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
       Lijst
     </button>
-    <button data-view="map" class="active">
+    <button data-view="map">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>
       Kaart
     </button>
     <button data-view="stats">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
-      Statistieken
+      Cijfers
     </button>
-    <button data-action="add">
+    <button data-action="log">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-      Nieuw
+      Log
     </button>
   </nav>
 
   <dialog id="dialog"><form method="dialog" id="dialogForm"></form></dialog>
-  <div class="toast" id="toast" hidden></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <div class="login" id="login" hidden>
     <form class="login-card" id="loginForm">
@@ -117,11 +138,12 @@
     </form>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
-  <script src="config.js?v=202611031400"></script>
-  <script src="stats.js?v=202611031400"></script>
-  <script src="storage.js?v=202611031400"></script>
-  <script src="app.js?v=202611031400"></script>
+  <script src="vendor/leaflet.js"></script>
+  <script src="vendor/supabase.js"></script>
+  <script src="core.js?v=202611051200"></script>
+  <script src="config.js?v=202611051200"></script>
+  <script src="stats.js?v=202611051200"></script>
+  <script src="storage.js?v=202611051200"></script>
+  <script src="app.js?v=202611051200"></script>
 </body>
 </html>

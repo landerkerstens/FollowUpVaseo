@@ -14,18 +14,18 @@ window.FollowUpStats = (() => {
     2030: { Thyroid: 74, Fibroid: 316 },
   };
   const MONTHS = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
-  const STAGES = ["Prospect", "Eerste contact", "Meeting / bezoek", "Demo gepland", "Demo gedaan", "Proefperiode", "Klant", "On hold", "Niet geïnteresseerd"];
-  const STATUS = [["green", "Aan het verkopen"], ["orange", "In progress"], ["red", "Geen contact"]];
+  const Core = window.FollowUpCore;
+  const { STAGES, esc, vrr } = Core;
+  const STATUS = Object.entries(Core.STATUS);
+  const GOAL_REGION = "QLD"; // de doelen komen uit de marktanalyse voor Queensland
 
-  const view = { year: String(new Date().getFullYear()), product: "all" };
+  const view = { year: String(new Date().getFullYear()), product: "all", region: "all" };
   let tip;
 
-  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const fmt = (n, d = 0) => (n == null || isNaN(n) ? "—" : Number(n).toLocaleString("nl-BE", { maximumFractionDigits: d, minimumFractionDigits: d }));
   const qty = (a) => Number(a.qty) || 1;
   const sum = (arr, f) => arr.reduce((s, x) => s + f(x), 0);
   const avg = (arr) => (arr.length ? arr.reduce((s, x) => s + x, 0) / arr.length : null);
-  const vrr = (d) => (d && d.volume && d.followupVolume ? (1 - d.followupVolume / d.volume) * 100 : null);
   // Asmaxima waarvan de helft een rond getal is: 2, 4, 6, 8, 10 × 10^n
   function niceMax(v) {
     if (v <= 4) return 4;
@@ -38,10 +38,15 @@ window.FollowUpStats = (() => {
   }
 
   // Alle contactmomenten, plat, met ziekenhuis erbij en gefilterd op jaar + product.
+  // Toekomstige datums zijn nog niet gebeurd en tellen niet mee.
+  const inRegion = (h) => view.region === "all" || h.region === view.region;
   function rows(db, { types, ignoreYear } = {}) {
     const out = [];
+    const today = Core.localDate();
     for (const h of db.hospitals) {
+      if (!inRegion(h)) continue;
       for (const a of h.activities) {
+        if (a.date > today) continue;
         if (types && !types.includes(a.type)) continue;
         if (!ignoreYear && view.year !== "all" && !a.date.startsWith(view.year)) continue;
         if (view.product !== "all" && a.product !== view.product) continue;
@@ -113,24 +118,36 @@ window.FollowUpStats = (() => {
   }
 
   // ---------- secties ----------
-  function targetsCard(db, procs) {
-    const year = view.year === "all" ? String(new Date().getFullYear()) : view.year;
+  function targetsCard(db) {
+    const now = new Date();
+    const year = view.year === "all" ? String(now.getFullYear()) : view.year;
     const t = targetsFor(db, year);
-    const byYear = procs.filter((a) => a.date.startsWith(year));
+    // Doelen gelden voor QLD; ziekenhuizen zonder regio tellen mee tot ze een regio krijgen.
+    const region = view.region;
+    view.region = "all";
+    const procs = rows(db, { types: ["Procedure"], ignoreYear: true });
+    view.region = region;
+    const byYear = procs.filter((a) => a.date.startsWith(year) && (a.hospital.region === GOAL_REGION || !a.hospital.region));
+    const noProduct = sum(byYear.filter((a) => !a.product), qty);
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    const elapsed = (now - yearStart) / (new Date(now.getFullYear() + 1, 0, 1) - yearStart);
+    const isThisYear = year === String(now.getFullYear());
     const products = view.product === "all" ? PRODUCTS : [view.product];
     return card(`Doel ${year}`, products.map((p) => {
       const done = sum(byYear.filter((a) => a.product === p), qty);
       const goal = Number(t[p]) || 0;
       const pct = goal ? Math.min(100, (done / goal) * 100) : 0;
+      const pace = isThisYear && done ? Math.round(done / elapsed) : null;
       return `<div class="s-target">
         <div class="s-target-head">
           <span><i style="background:${SERIES[p]}"></i>${p}</span>
           <span><b>${fmt(done)}</b> van <input type="number" min="0" data-target-year="${year}" data-target-product="${p}" value="${goal}" aria-label="Doel ${p} ${year}"> procedures</span>
         </div>
         <div class="s-progress"><div style="width:${pct}%;background:${SERIES[p]}"></div></div>
-        <small class="muted">${goal ? `${fmt((done / goal) * 100)}% van het doel` : "Geen doel ingesteld"}</small>
+        <small class="muted">${goal ? `${fmt((done / goal) * 100)}% van het doel` : "Geen doel ingesteld"}${pace !== null ? ` · op dit tempo ${fmt(pace)} tegen het jaareinde` : ""}</small>
       </div>`;
-    }).join("") + `<p class="muted">Doelen uit je marktanalyse (marktaandeel Prion Medical in QLD). Pas het getal aan om het doel te wijzigen.</p>`);
+    }).join("") + (noProduct ? `<p class="muted"><b>${fmt(noProduct)} procedure(s) zonder product</b> tellen niet mee. Vul het product in om ze mee te tellen.</p>` : "")
+      + `<p class="muted">Doelen uit je marktanalyse (marktaandeel Prion Medical in ${GOAL_REGION}). Ze tellen alleen procedures in ${GOAL_REGION} en ziekenhuizen zonder regio. Pas het getal aan om het doel te wijzigen.</p>`);
   }
 
   function monthsCard(procs) {
@@ -168,11 +185,52 @@ window.FollowUpStats = (() => {
   }
 
   function pipelineCard(db) {
-    const hs = db.hospitals.filter((h) => view.product === "all" || h.products.includes(view.product));
+    const hs = scoped(db);
     const statusTiles = `<div class="s-status">${STATUS.map(([k, label]) =>
       `<div><i class="dot ${k}"></i><b>${hs.filter((h) => h.status === k).length}</b><span>${label}</span></div>`).join("")}</div>`;
     const items = STAGES.map((s) => ({ label: s, total: hs.filter((h) => h.stage === s).length })).filter((i) => i.total);
     return card("Pijplijn (ziekenhuizen)", statusTiles + hbars(items, null, "Geen ziekenhuizen."));
+  }
+
+  const scoped = (db) => db.hospitals.filter((h) => inRegion(h) && (view.product === "all" || h.products.includes(view.product)));
+  const money = (n) => `A$ ${fmt(n)}`;
+
+  // Klant = eerste bestelling: daarom is dit de enige plek waar "klant" geteld wordt, samen met de pijplijn.
+  function funnelCard(db) {
+    const hs = scoped(db);
+    const steps = Core.funnel(hs);
+    const days = Core.daysToCustomer(hs);
+    const lost = {};
+    for (const h of hs) if (h.stage === "Niet geïnteresseerd") lost[h.lostReason || "Geen reden opgegeven"] = (lost[h.lostReason || "Geen reden opgegeven"] || 0) + 1;
+    const body = steps.map((s, i) => {
+      const prev = i ? steps[i - 1].count : s.count;
+      return { label: s.stage, total: s.count, note: i && prev ? `${fmt((s.count / prev) * 100)}% van de vorige fase` : "" };
+    });
+    return card("Conversie (ziekenhuizen per bereikte fase)",
+      hbars(body.map((b) => ({ ...b, label: b.label })), null, "Geen ziekenhuizen.")
+      + `<p class="muted">${body.filter((b) => b.note).map((b) => `${esc(b.label)}: ${esc(b.note)}`).join(" · ")}</p>`
+      + `<dl class="s-dist">
+          <dt>Tijd tot klant</dt><dd>${days.length ? `gemiddeld ${fmt(avg(days))} dagen (n = ${days.length})` : "Wordt gemeten vanaf nu, zodra een ziekenhuis klant wordt"}</dd>
+          <dt>Afgehaakt</dt><dd>${Object.keys(lost).length ? Object.entries(lost).map(([r, n]) => `${esc(r)}: <b>${n}</b>`).join(" · ") : "—"}</dd>
+        </dl>`);
+  }
+
+  function valueCard(db) {
+    const hs = scoped(db);
+    const p = Core.pipelineValue(hs);
+    const prices = db.prices || {};
+    const orders = rows(db, { types: ["Bestelling"] });
+    const known = orders.filter((a) => a.product && prices[a.product]);
+    const revenue = sum(known, (a) => qty(a) * prices[a.product]);
+    const unknown = sum(orders, qty) - sum(known, qty);
+    return card("Waarde", `
+      <div class="s-tiles small">
+        ${tile(money(p.total), "Open pijplijn", `${p.count} ziekenhuis/-huizen met waarde`)}
+        ${tile(money(p.weighted), "Gewogen met winkans")}
+        ${tile(money(revenue), "Omzet bestellingen", unknown ? `${fmt(unknown)} naalden zonder prijs of product` : "")}
+      </div>
+      <div class="s-prices">${PRODUCTS.map((pr) => `<label>Prijs per naald ${pr} (A$) <input type="number" min="0" step="1" data-price="${pr}" value="${esc(prices[pr] ?? "")}"></label>`).join("")}</div>
+      <p class="muted">Waarde en winkans vul je in op de fiche van het ziekenhuis.</p>`);
   }
 
   function activityCard(db) {
@@ -240,7 +298,6 @@ window.FollowUpStats = (() => {
     const years = new Set([String(new Date().getFullYear()), ...Object.keys(DEFAULT_TARGETS)]);
     for (const h of db.hospitals) for (const a of h.activities) years.add(a.date.slice(0, 4));
     const procs = rows(db, { types: ["Procedure"] });
-    const allYearProcs = rows(db, { types: ["Procedure"], ignoreYear: true });
     const acts = rows(db);
     const hospitalsWithProc = new Set(procs.map((a) => a.hospital.id)).size;
     const det = procs.map((a) => a.details).filter(Boolean);
@@ -254,7 +311,11 @@ window.FollowUpStats = (() => {
             <option value="all" ${view.year === "all" ? "selected" : ""}>Alle jaren</option>
             ${[...years].sort().reverse().filter((y) => /^\d{4}$/.test(y)).map((y) => `<option ${y === view.year ? "selected" : ""}>${y}</option>`).join("")}
           </select></label>
-          <div class="s-seg">${["all", ...PRODUCTS].map((p) => `<button data-stat-product="${p}" class="${view.product === p ? "active" : ""}">${p === "all" ? "Alle" : p}</button>`).join("")}</div>
+          <label>Regio <select data-stat="region">
+            <option value="all">Alle</option>
+            ${Core.REGIONS.map((r) => `<option ${r === view.region ? "selected" : ""}>${r}</option>`).join("")}
+          </select></label>
+          <div class="s-seg">${["all", ...PRODUCTS].map((p) => `<button data-stat-product="${p}" aria-pressed="${view.product === p}" class="${view.product === p ? "active" : ""}">${p === "all" ? "Alle" : p}</button>`).join("")}</div>
         </div>
       </div>
       <div class="s-tiles">
@@ -267,15 +328,23 @@ window.FollowUpStats = (() => {
       </div>
       <div class="s-grid-cards">
         ${monthsCard(procs)}
-        ${targetsCard(db, allYearProcs)}
+        ${targetsCard(db)}
         ${hospitalsCard(procs)}
         ${pipelineCard(db)}
+        ${funnelCard(db)}
+        ${valueCard(db)}
         ${activityCard(db)}
         ${clinicalCard(procs)}
         ${tableCard(procs)}
       </div>`;
 
     el.querySelector("[data-stat=year]").onchange = (e) => { view.year = e.target.value; render(db, el, onTargetsChange); };
+    el.querySelector("[data-stat=region]").onchange = (e) => { view.region = e.target.value; render(db, el, onTargetsChange); };
+    el.querySelectorAll("[data-price]").forEach((inp) => (inp.onchange = () => {
+      db.prices = { ...(db.prices || {}), [inp.dataset.price]: Math.max(0, Number(inp.value) || 0) };
+      onTargetsChange();
+      render(db, el, onTargetsChange);
+    }));
     el.querySelectorAll("[data-stat-product]").forEach((b) => (b.onclick = () => { view.product = b.dataset.statProduct; render(db, el, onTargetsChange); }));
     el.querySelectorAll("[data-target-year]").forEach((inp) => (inp.onchange = () => {
       const y = inp.dataset.targetYear;

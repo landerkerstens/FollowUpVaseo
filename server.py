@@ -9,6 +9,7 @@ Geen externe libraries nodig.
 """
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -48,6 +49,12 @@ def save_db(payload):
     (BACKUPS / f"db-{date.today().isoformat()}.json").write_text(text, encoding="utf-8")
 
 
+def list_backups():
+    if not BACKUPS.exists():
+        return []
+    return sorted((p.stem[3:] for p in BACKUPS.glob("db-*.json")), reverse=True)
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(PUBLIC), **kwargs)
@@ -61,12 +68,33 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
+    def _trusted(self):
+        """Weigert verzoeken via een ander domein of vanaf een andere website (DNS-rebinding, CSRF)."""
+        local = {f"localhost:{PORT}", f"127.0.0.1:{PORT}"}
+        if self.headers.get("Host") not in local:
+            return False
+        origin = self.headers.get("Origin")
+        return origin is None or origin.split("//")[-1] in local
+
     def do_GET(self):
-        if self.path.split("?")[0] == "/api/data":
+        if not self._trusted():
+            return self._send(403, '{"error":"niet toegelaten"}')
+        path = self.path.split("?")[0]
+        if path == "/api/data":
             return self._send(200, load_db())
+        if path == "/api/backups":
+            return self._send(200, json.dumps(list_backups()))
+        match = re.fullmatch(r"/api/backups/(\d{4}-\d{2}-\d{2})", path)
+        if match:
+            file = BACKUPS / f"db-{match.group(1)}.json"
+            if not file.exists():
+                return self._send(404, '{"error":"niet gevonden"}')
+            return self._send(200, file.read_text(encoding="utf-8"))
         return super().do_GET()
 
     def do_PUT(self):
+        if not self._trusted():
+            return self._send(403, '{"error":"niet toegelaten"}')
         if self.path.split("?")[0] != "/api/data":
             return self._send(404, '{"error":"not found"}')
         length = int(self.headers.get("Content-Length") or 0)
@@ -84,7 +112,7 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def log_message(self, fmt, *args):
-        if "/api/" in (args[0] if args else ""):
+        if "/api/" in str(args[0] if args else ""):
             sys.stderr.write("%s\n" % (fmt % args))
 
 
