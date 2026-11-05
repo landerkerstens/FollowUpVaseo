@@ -206,7 +206,7 @@ Elke andere statische host (Netlify, Vercel, Cloudflare Pages) werkt ook: public
 1. **Fork/kopieer** de repo en verwijder `data/seed.json` (die bevat echte contactgegevens – zie §11).
 2. **Huisstijl**: `public/styles.css` → variabelen in `:root` (kleuren, `--font`), `logo.svg`, `favicon.svg`, `apple-touch-icon.png`, de Google-Fonts-link in `index.html` en de titel/`apple-mobile-web-app-title`.
 3. **Producten**: `PRODUCTS` in `app.js` én `stats.js`, de productfilter-knoppen in `index.html`, de reekskleuren `--series-1/2` in `styles.css`.
-4. **Land/regio**: `REGIONS` in `core.js`, `AUS_BOUNDS` en de knop "Heel Australië" in `app.js`/`index.html`, de landfilter in de Photon-adreszoeker (`attachAddressSearch` in `app.js`).
+4. **Land/regio**: `REGIONS` in `core.js`, `AUS_BOUNDS` en de knop "Heel Australië" in `app.js`/`index.html`, `AU_BBOX` (zoekgebied van de Photon-adreszoeker in `app.js`).
 5. **Verkoopproces**: `STAGES`, `ACT_TYPES`, `WIN_CHANCE`, `stageAfterActivity` in `core.js`; `LOST_REASONS` in `app.js`.
 6. **Procedurevelden**: `PROC_FIELDS` in `app.js` (of weglaten als je product geen procedures heeft).
 7. **Doelen**: `DEFAULT_TARGETS` en `GOAL_REGION` in `stats.js`.
