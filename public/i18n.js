@@ -9,7 +9,7 @@ window.FollowUpI18n = (() => {
 
   const TEXT = {
     // ---- navigatie en knoppen ----
-    "app.followup": ["FollowUp", "FollowUp"],
+    "app.followup": ["Follow-Up", "Follow-Up"],
     "nav.aria": ["Navigatie", "Navigation"],
     "nav.screens": ["Schermen", "Screens"],
     "nav.today": ["Vandaag", "Today"],

@@ -9,12 +9,12 @@
   --ink: #161616;
   --ink-soft: #3a3a3a;
   --paper: #ffffff;
-  --paper-2: #f3f3f1;
+  --paper-2: #e7e7e3;
   --card: #fafafa;
-  --grey: #6e6e6e;
+  --grey: #565656;
   --grey-2: #c9c9c9;
-  --line: rgba(22, 22, 22, 0.12);
-  --muted: rgba(22, 22, 22, 0.64);
+  --line: rgba(22, 22, 22, 0.17);
+  --muted: rgba(22, 22, 22, 0.74);
   --hover: rgba(22, 22, 22, 0.05);
 
   --green: #1f9d55;
@@ -124,7 +124,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 .menu__list button:hover { background: var(--hover); }
 
-.banner { background: var(--ink); color: var(--paper); padding: 10px 20px; font-size: 14px; }
+.banner { background: var(--ink-soft); color: var(--paper); padding: 10px 20px; font-size: 14px; }
 .banner .btn { border-color: var(--paper); color: var(--paper); }
 .banner .btn.primary { background: var(--paper); color: var(--ink); }
 
@@ -455,6 +455,30 @@ body[data-view="stats"] .sidebar, body[data-view="stats"] .map-wrap, body[data-v
 .s-table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .s-tip { position: fixed; z-index: 7000; background: var(--ink); color: var(--paper); font-size: 12.5px; padding: 8px 11px; border-radius: var(--radius); pointer-events: none; box-shadow: var(--shadow-float); line-height: 1.5; }
 
+/* ---------- donkere bovenbalk ----------
+   De balk is het donkerste vlak van de pagina. De statuskleuren zijn hier een tint helderder en
+   krijgen een wit randje, zodat ze op zwart even goed leesbaar zijn als op wit. */
+.topbar {
+  --green: #36c377; --orange: #f7a928; --red: #ff6f63;
+  background: var(--ink); color: var(--paper); border-bottom: 0;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.topbar .brand__logo { filter: invert(1) brightness(2); }
+.topbar .brand__region { color: rgba(255, 255, 255, .72); border-left-color: rgba(255, 255, 255, .25); }
+.topbar .kpi { border-left-color: rgba(255, 255, 255, .2); }
+.topbar .kpi span, .topbar .save-state { color: rgba(255, 255, 255, .72); }
+.topbar .save-state.error { color: var(--red); }
+.topbar .dot { box-shadow: 0 0 0 1.5px #fff; }
+.topbar .btn { border-color: rgba(255, 255, 255, .3); color: var(--paper); }
+.topbar .btn:hover, .topbar .btn.primary, .topbar .view-nav .btn.active { background: var(--paper); border-color: var(--paper); color: var(--ink); }
+.topbar .btn.primary:hover { background: #dcdcdc; border-color: #dcdcdc; }
+.topbar :focus-visible { outline-color: var(--paper); }
+.menu__list { color: var(--ink); --red: #d93a30; }
+.menu__list :focus-visible { outline-color: var(--ink); }
+
+/* Witte blokken staan los van de grijze achtergrond. */
+.today-group, .today-empty, .ag-block, .cal, .s-card, .s-tiles, .u-list { box-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 6px 16px -12px rgba(0, 0, 0, .25); }
+
 /* ---------- rechten: wat een rol niet mag, staat er niet ---------- */
 body[data-rights~="no-write"] .w-only,
 body[data-rights~="no-delete"] .d-only,
@@ -601,16 +625,16 @@ button.cal-day:focus-visible { outline-offset: -2px; }
   .tabbar {
     display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 1500;
     height: calc(var(--tabbar-h) + var(--safe-bottom)); padding-bottom: var(--safe-bottom);
-    background: rgba(255, 255, 255, .94); backdrop-filter: saturate(140%) blur(14px); -webkit-backdrop-filter: saturate(140%) blur(14px);
-    border-top: 1px solid var(--line);
+    background: var(--ink); border-top: 0;
   }
   .tabbar button {
     flex: 1; background: none; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-    font-size: 11px; font-weight: 500; color: var(--grey);
+    font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, .62);
   }
   .tabbar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .tabbar svg circle { fill: currentColor; stroke: none; }
-  .tabbar button.active { color: var(--ink); font-weight: 600; }
+  .tabbar button.active { color: var(--paper); font-weight: 600; }
+  .tabbar :focus-visible { outline-color: var(--paper); outline-offset: -3px; }
 
   .stats-view { padding: 16px 14px 28px; }
   .s-filters { width: 100%; }
