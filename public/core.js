@@ -20,6 +20,9 @@
   // Standaard winkans per fase; per ziekenhuis aan te passen.
   const WIN_CHANCE = { "Prospect": 5, "Eerste contact": 10, "Meeting / bezoek": 20, "Demo gepland": 30, "Demo gedaan": 40, "Proefperiode": 60, "Klant": 100, "On hold": 10, "Niet geïnteresseerd": 0 };
   const STALE_DAYS = 30;
+  // Indicaties waarvoor de RF-naalden verkocht worden. Dit is enkel de startlijst:
+  // de echte lijst staat in het document (db.indications) en is in de app uit te breiden.
+  const DEFAULT_INDICATIONS = ["Thyroid", "Fibroid"];
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   // Volumereductie in %, de standaardmaat voor RF-ablatie.
@@ -95,13 +98,17 @@
       .filter((e) => e && STAGES.includes(e.stage) && DATE.test(str(e.date)))
       .map((e) => ({ stage: e.stage, date: e.date }));
     h.contacts = (Array.isArray(h.contacts) ? h.contacts : []).filter((c) => c && typeof c === "object").map((c) => {
-      for (const k of ["name", "role", "phone", "email", "address", "product", "notes"]) c[k] = str(c[k]);
+      for (const k of ["name", "role", "phone", "email", "address", "product", "notes", "createdBy", "updatedBy"]) c[k] = str(c[k]);
+      c.createdAt = safeDate(c.createdAt);
+      c.updatedAt = safeDate(c.updatedAt);
       c.id = safeId(c.id);
       c.primary = !!c.primary;
       return c;
     });
     h.activities = (Array.isArray(h.activities) ? h.activities : []).filter((a) => a && typeof a === "object").map((a) => {
-      for (const k of ["type", "product", "contactId", "note", "createdBy"]) a[k] = str(a[k]);
+      for (const k of ["type", "product", "contactId", "note", "createdBy", "updatedBy"]) a[k] = str(a[k]);
+      a.createdAt = safeDate(a.createdAt);
+      a.updatedAt = safeDate(a.updatedAt);
       a.id = safeId(a.id);
       a.date = safeDate(a.date);
       if (a.details && typeof a.details !== "object") delete a.details;
@@ -138,8 +145,17 @@
     db.hospitals = db.hospitals.filter((h) => h && typeof h === "object");
     const migrated = migrate(db);
     db.hospitals.forEach(normalize);
+    db.indications = cleanIndications(db.indications);
     return migrated;
   }
+  // Unieke, niet-lege namen; ontbreekt de lijst (oudere bestanden), dan de startlijst.
+  function cleanIndications(list) {
+    const seen = new Set();
+    const out = (Array.isArray(list) ? list : []).map((x) => str(x).trim().slice(0, 40))
+      .filter((x) => x && !seen.has(x.toLowerCase()) && seen.add(x.toLowerCase()));
+    return out.length ? out : [...DEFAULT_INDICATIONS];
+  }
+  const indications = (db) => (db && Array.isArray(db.indications) && db.indications.length ? db.indications : DEFAULT_INDICATIONS);
 
   // Controle vóór een import: geeft een lijst met problemen die de gebruiker moet zien.
   function checkImport(data) {
@@ -155,6 +171,7 @@
   // ---------- samenvoegen: wijzigingen van twee toestellen combineren ----------
   const isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
   const isRecords = (v) => Array.isArray(v) && v.every((x) => isObj(x) && "id" in x);
+  const isStrings = (v) => Array.isArray(v) && v.every((x) => typeof x === "string");
   function same(a, b) {
     if (a === b) return true;
     if (Array.isArray(a) && Array.isArray(b)) return a.length === b.length && a.every((x, i) => same(x, b[i]));
@@ -171,6 +188,12 @@
     if (same(base, theirs)) return mine;
     if (isRecords(mine) && isRecords(theirs)) return mergeRecords(isRecords(base) ? base : [], mine, theirs);
     if (isObj(mine) && isObj(theirs)) return mergeObject(isObj(base) ? base : {}, mine, theirs);
+    // Lijsten met gewone tekst (indicaties, producten): wat één kant toevoegde of schrapte, blijft zo.
+    if (isStrings(mine) && isStrings(theirs)) {
+      const b = isStrings(base) ? base : [];
+      const gone = b.filter((x) => !mine.includes(x) || !theirs.includes(x));
+      return [...new Set([...theirs, ...mine])].filter((x) => !gone.includes(x));
+    }
     return mine; // zelfde veld op beide toestellen gewijzigd: de laatste opslag wint
   }
   function mergeObject(base, mine, theirs) {
@@ -259,7 +282,7 @@
   }
 
   const api = {
-    STAGES, FUNNEL, STATUS, ACT_TYPES, AGE_GROUPS, REGIONS, WIN_CHANCE, STALE_DAYS,
+    STAGES, FUNNEL, STATUS, ACT_TYPES, AGE_GROUPS, REGIONS, WIN_CHANCE, STALE_DAYS, DEFAULT_INDICATIONS, indications,
     esc, vrr, uid, localDate, addDays, daysBetween,
     statusForStage, setStage, stageAfterActivity, ageGroup,
     normalize, migrate, prepare, checkImport, same, merge,

@@ -1,7 +1,7 @@
 /* FollowUp Vaseo – zorgt dat de app zonder bereik opent. Bevat alleen de programmabestanden, geen klantgegevens.
  * Altijd eerst het netwerk, zodat je de nieuwste versie krijgt; de kopie is enkel de terugval. */
-const CACHE = "followup-shell-v1";
-const SHELL = ["./", "index.html", "styles.css", "core.js", "stats.js", "storage.js", "app.js", "config.js", "logo.svg", "favicon.svg", "vendor/leaflet.js", "vendor/leaflet.css", "vendor/supabase.js"];
+const CACHE = "followup-shell-v2";
+const SHELL = ["./", "index.html", "styles.css", "core.js", "i18n.js", "stats.js", "storage.js", "app.js", "config.js", "logo.svg", "favicon.svg", "vendor/leaflet.js", "vendor/leaflet.css", "vendor/supabase.js"];
 const TIMEOUT = 5000;
 
 self.addEventListener("install", (e) => {

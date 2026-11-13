@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/leaflet.css">
-  <link rel="stylesheet" href="styles.css?v=202611051200">
+  <link rel="stylesheet" href="styles.css?v=202611131500">
 </head>
 <body data-view="today">
   <header class="topbar">
@@ -27,22 +27,26 @@
     <div class="kpis" id="kpis"></div>
     <div class="top-actions">
       <span class="save-state" id="saveState" role="status" aria-live="polite"></span>
-      <nav class="view-nav desktop-only" id="viewNav" aria-label="Schermen">
-        <button class="btn ghost" data-view="today">Vandaag</button>
-        <button class="btn ghost" data-view="map">Kaart</button>
-        <button class="btn ghost" data-view="stats">Statistieken</button>
+      <nav class="view-nav desktop-only" id="viewNav" aria-label="Schermen" data-i18n-aria="nav.screens">
+        <button class="btn ghost" data-view="today" data-i18n="nav.today">Vandaag</button>
+        <button class="btn ghost" data-view="map" data-i18n="nav.map">Kaart</button>
+        <button class="btn ghost" data-view="agenda" data-i18n="nav.agenda">Agenda</button>
+        <button class="btn ghost" data-view="stats" data-i18n="nav.stats">Statistieken</button>
       </nav>
-      <button class="btn ghost desktop-only" id="logBtn">Log contact</button>
-      <button class="btn primary desktop-only" id="addHospitalBtn">+ Ziekenhuis</button>
+      <button class="btn ghost desktop-only w-only" id="logBtn" data-i18n="btn.logContact">Log contact</button>
+      <button class="btn primary desktop-only w-only" id="addHospitalBtn" data-i18n="btn.addHospital">+ Ziekenhuis</button>
+      <button class="btn ghost lang" id="langBtn" aria-label="Switch to English">EN</button>
       <div class="menu">
-        <button class="btn ghost icon" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-label="Meer">
+        <button class="btn ghost icon" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-label="Meer" data-i18n-aria="btn.more">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
         </button>
         <div class="menu__list" id="menuList" hidden>
-          <button id="exportBtn">Exporteren</button>
-          <button id="backupsBtn">Back-ups terugzetten</button>
-          <button id="importBtn">Back-up importeren</button>
-          <button id="logoutBtn" hidden>Afmelden</button>
+          <button id="exportBtn" data-i18n="btn.export">Exporteren</button>
+          <button id="indicationsBtn" data-i18n="btn.indications">Indicaties</button>
+          <button id="backupsBtn" class="i-only" data-i18n="btn.backups">Back-ups terugzetten</button>
+          <button id="importBtn" class="i-only" data-i18n="btn.import">Back-up importeren</button>
+          <button id="usersBtn" data-i18n="btn.users" hidden>Gebruikers</button>
+          <button id="logoutBtn" data-i18n="btn.logout" hidden>Afmelden</button>
         </div>
       </div>
       <input type="file" id="importFile" accept="application/json" hidden>
@@ -55,71 +59,74 @@
     <aside class="sidebar">
       <div class="search">
         <svg class="search__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="search" type="search" aria-label="Zoek ziekenhuis, arts of stad" placeholder="Zoek ziekenhuis, arts of stad…" autocomplete="off" enterkeyhint="search">
+        <input id="search" type="search" aria-label="Zoek ziekenhuis, arts of stad" data-i18n-aria="search.placeholder" data-i18n-ph="search.placeholder" placeholder="Zoek ziekenhuis, arts of stad…" autocomplete="off" enterkeyhint="search">
       </div>
-      <div class="filters" id="dueFilters" role="group" aria-label="Filter op opvolging">
-        <button class="chip active" data-due="all" aria-pressed="true">Alles</button>
-        <button class="chip" data-due="overdue" aria-pressed="false">Actie te laat</button>
-        <button class="chip" data-due="noAction" aria-pressed="false">Geen actie</button>
-        <button class="chip" data-due="stale" aria-pressed="false">Lang stil</button>
+      <div class="filters" id="dueFilters" role="group" aria-label="Filter op opvolging" data-i18n-aria="filter.dueAria">
+        <button class="chip active" data-due="all" aria-pressed="true" data-i18n="filter.everything">Alles</button>
+        <button class="chip" data-due="overdue" aria-pressed="false" data-i18n="due.overdue">Actie te laat</button>
+        <button class="chip" data-due="noAction" aria-pressed="false" data-i18n="filter.noAction">Geen actie</button>
+        <button class="chip" data-due="stale" aria-pressed="false" data-i18n="due.stale">Lang stil</button>
       </div>
-      <div class="filters" id="statusFilters" role="group" aria-label="Filter op status">
-        <button class="chip active" data-status="all" aria-pressed="true">Alle</button>
-        <button class="chip" data-status="green" aria-pressed="false"><i class="dot green" aria-hidden="true"></i>Aan het verkopen</button>
-        <button class="chip" data-status="orange" aria-pressed="false"><i class="dot orange" aria-hidden="true"></i>In progress</button>
-        <button class="chip" data-status="red" aria-pressed="false"><i class="dot red" aria-hidden="true"></i>Nog geen contact</button>
-        <button class="chip" data-status="grey" aria-pressed="false"><i class="dot grey" aria-hidden="true"></i>Niet geïnteresseerd</button>
+      <div class="filters" id="statusFilters" role="group" aria-label="Filter op status" data-i18n-aria="filter.statusAria">
+        <button class="chip active" data-status="all" aria-pressed="true" data-i18n="filter.all">Alle</button>
+        <button class="chip" data-status="green" aria-pressed="false"><i class="dot green" aria-hidden="true"></i><span data-i18n="status.green">Aan het verkopen</span></button>
+        <button class="chip" data-status="orange" aria-pressed="false"><i class="dot orange" aria-hidden="true"></i><span data-i18n="status.orange">In progress</span></button>
+        <button class="chip" data-status="red" aria-pressed="false"><i class="dot red" aria-hidden="true"></i><span data-i18n="status.red">Nog geen contact</span></button>
+        <button class="chip" data-status="grey" aria-pressed="false"><i class="dot grey" aria-hidden="true"></i><span data-i18n="status.grey">Niet geïnteresseerd</span></button>
       </div>
-      <div class="filters" id="productFilters" role="group" aria-label="Filter op product">
-        <button class="chip active" data-product="all" aria-pressed="true">Alle producten</button>
-        <button class="chip" data-product="Thyroid" aria-pressed="false">Thyroid</button>
-        <button class="chip" data-product="Fibroid" aria-pressed="false">Fibroid</button>
-      </div>
+      <!-- Door app.js gevuld: de indicaties staan in het document en zijn uit te breiden. -->
+      <div class="filters" id="productFilters" role="group" aria-label="Filter op indicatie" data-i18n-aria="filter.indicationAria"></div>
       <ul class="list" id="list"></ul>
     </aside>
 
     <section class="map-wrap">
       <div id="map"></div>
       <div class="map-tools">
-        <button class="btn small" id="fitBtn">Toon alle</button>
-        <button class="btn small" id="ausBtn">Heel Australië</button>
+        <button class="btn small" id="fitBtn" data-i18n="btn.showAll">Toon alle</button>
+        <button class="btn small" id="ausBtn" data-i18n="btn.wholeAustralia">Heel Australië</button>
       </div>
       <div class="legend">
-        <span><i class="dot green" aria-hidden="true"></i>Aan het verkopen</span>
-        <span><i class="dot orange" aria-hidden="true"></i>In progress</span>
-        <span><i class="dot red" aria-hidden="true"></i>Nog geen contact</span>
-        <span><i class="dot grey" aria-hidden="true"></i>Niet geïnteresseerd</span>
+        <span><i class="dot green" aria-hidden="true"></i><span data-i18n="status.green">Aan het verkopen</span></span>
+        <span><i class="dot orange" aria-hidden="true"></i><span data-i18n="status.orange">In progress</span></span>
+        <span><i class="dot red" aria-hidden="true"></i><span data-i18n="status.red">Nog geen contact</span></span>
+        <span><i class="dot grey" aria-hidden="true"></i><span data-i18n="status.grey">Niet geïnteresseerd</span></span>
       </div>
-      <div class="place-hint" id="placeHint" hidden>Tik op de kaart om de locatie te kiezen · <button class="link" id="cancelPlace">Annuleer</button></div>
-      <div class="place-hint" id="dragHint" hidden>Sleep de marker naar de juiste plek · <button class="link" id="dragDone">Klaar</button></div>
-      <div class="map-filter" id="mapFilter" hidden><span id="mapFilterText"></span> <button class="link" id="mapFilterReset">Wissen</button></div>
+      <div class="place-hint" id="placeHint" hidden><span data-i18n="map.placeHint">Tik op de kaart om de locatie te kiezen</span> · <button class="link" id="cancelPlace" data-i18n="btn.cancel">Annuleer</button></div>
+      <div class="place-hint" id="dragHint" hidden><span data-i18n="map.dragHint">Sleep de marker naar de juiste plek</span> · <button class="link" id="dragDone" data-i18n="btn.done">Klaar</button></div>
+      <div class="map-filter" id="mapFilter" hidden><span id="mapFilterText"></span> <button class="link" id="mapFilterReset" data-i18n="btn.clear">Wissen</button></div>
     </section>
 
     <aside class="fiche" id="fiche" hidden></aside>
     <section class="stats-view" id="statsView" hidden></section>
     <section class="stats-view today-view" id="todayView" hidden></section>
+    <section class="stats-view agenda-view" id="agendaView" hidden></section>
+    <section class="stats-view users-view" id="usersView" hidden></section>
   </main>
 
-  <nav class="tabbar" aria-label="Navigatie">
+  <nav class="tabbar" aria-label="Navigatie" data-i18n-aria="nav.aria">
     <button data-view="today">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
-      Vandaag
+      <span data-i18n="nav.today">Vandaag</span>
     </button>
     <button data-view="list">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
-      Lijst
+      <span data-i18n="nav.list">Lijst</span>
     </button>
     <button data-view="map">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>
-      Kaart
+      <span data-i18n="nav.map">Kaart</span>
+    </button>
+    <button data-view="agenda">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      <span data-i18n="nav.agenda">Agenda</span>
     </button>
     <button data-view="stats">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
-      Cijfers
+      <span data-i18n="nav.statsShort">Cijfers</span>
     </button>
-    <button data-action="log">
+    <button data-action="log" class="w-only">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-      Log
+      <span data-i18n="nav.log">Log</span>
     </button>
   </nav>
 
@@ -130,20 +137,21 @@
     <form class="login-card" id="loginForm">
       <img class="login-logo" src="logo.svg" alt="Vaseo Medical">
       <p class="eyebrow">FollowUp</p>
-      <p class="muted">Meld je aan om verder te gaan.</p>
-      <label class="field">E-mail<input name="email" type="email" autocomplete="username" required></label>
-      <label class="field">Wachtwoord<input name="password" type="password" autocomplete="current-password" required></label>
+      <p class="muted" data-i18n="login.intro">Meld je aan om verder te gaan.</p>
+      <label class="field"><span data-i18n="login.email">E-mail</span><input name="email" type="email" autocomplete="username" required></label>
+      <label class="field"><span data-i18n="login.password">Wachtwoord</span><input name="password" type="password" autocomplete="current-password" required></label>
       <p class="login-error" id="loginError"></p>
-      <button class="btn primary" type="submit">Aanmelden</button>
+      <button class="btn primary" type="submit" data-i18n="login.submit">Aanmelden</button>
     </form>
   </div>
 
   <script src="vendor/leaflet.js"></script>
   <script src="vendor/supabase.js"></script>
-  <script src="core.js?v=202611051200"></script>
-  <script src="config.js?v=202611051200"></script>
-  <script src="stats.js?v=202611051200"></script>
-  <script src="storage.js?v=202611051200"></script>
-  <script src="app.js?v=202611051200"></script>
+  <script src="core.js?v=202611131500"></script>
+  <script src="config.js?v=202611131500"></script>
+  <script src="i18n.js?v=202611131500"></script>
+  <script src="stats.js?v=202611131500"></script>
+  <script src="storage.js?v=202611131500"></script>
+  <script src="app.js?v=202611131500"></script>
 </body>
 </html>

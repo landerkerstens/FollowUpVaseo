@@ -179,5 +179,26 @@ test("pijplijnwaarde: klanten en afgehaakten tellen niet mee", () => {
   eq(p, { count: 2, total: 2000, weighted: 1100 });
 });
 
+test("indicaties: startlijst als ze ontbreken, anders de eigen lijst zonder dubbels", () => {
+  const old = { version: 2, hospitals: [] };
+  C.prepare(old);
+  eq(old.indications, ["Thyroid", "Fibroid"]);
+  const own = { version: 2, hospitals: [], indications: ["Thyroid", " Liver ", "liver", "", 5] };
+  C.prepare(own);
+  eq(own.indications, ["Thyroid", "Liver", "5"]);
+  eq(C.indications({}), ["Thyroid", "Fibroid"]);
+});
+test("samenvoegen: een indicatie die op een ander toestel bijkwam, blijft staan", () => {
+  const base = { hospitals: [], indications: ["Thyroid", "Fibroid"] };
+  const r = C.merge(base, { hospitals: [], indications: ["Thyroid", "Fibroid", "Liver"] }, { hospitals: [], indications: ["Thyroid", "Fibroid", "Prostate"] });
+  eq(r.indications, ["Thyroid", "Fibroid", "Prostate", "Liver"]);
+});
+test("stempels: wie en wanneer blijven tekst en geldige datums", () => {
+  const h = hospital({ activities: [{ id: "a1", date: "2026-01-01", type: "Bezoek", createdAt: "gisteren", updatedBy: 7 }] });
+  eq(h.activities[0].createdAt, "");
+  eq(h.activities[0].updatedBy, "7");
+  eq(h.activities[0].createdBy, "");
+});
+
 print(`${passed} geslaagd, ${failed} mislukt`);
 if (failed) throw new Error("tests mislukt");

@@ -44,11 +44,23 @@ Elke wijziging staat meteen op het toestel en gaat daarna naar de databank. Zond
 `supabase/schema.sql` plak je in Supabase → SQL Editor. Het script mag opnieuw uitgevoerd worden. Het voegt toe:
 
 - een historiek van versies (maximaal één per 10 minuten, 90 dagen bewaard) en dagkopieën (365 dagen), terug te zetten via ⋯ → Back-ups terugzetten;
-- een lijst toegelaten gebruikers (`allowed_users`). Bij de eerste keer komen alle bestaande accounts erop; een nieuw account moet je toevoegen:
+- gebruikers met een naam en een rol (`app_users`). Bij de eerste keer wordt iedereen die al toegang had beheerder; zet daarna in de app (⋯ → Gebruikers) iedereen op de juiste rol. Een nieuw account maak je in Supabase (Authentication → Users); het verschijnt in de app zonder toegang tot een beheerder het een rol geeft.
 
-```sql
-insert into public.allowed_users (user_id) select id from auth.users where email = 'naam@voorbeeld.be';
-```
+| Rol | Mag |
+| --- | --- |
+| Beheerder | alles, ook gebruikers beheren |
+| Bewerker | alles behalve gebruikers beheren |
+| Bijdrager | toevoegen en wijzigen; verwijderen, importeren en back-ups terugzetten niet |
+| Kijker | alleen lezen |
+| Geen toegang | niets |
+
+De databank zelf dwingt af dat een kijker niets kan wijzigen en dat alleen een beheerder rollen aanpast. Dat een bijdrager niets verwijdert, regelt alleen de app. Zolang het script niet opnieuw is uitgevoerd, werkt de app zoals voorheen: iedereen op de oude lijst mag alles en het scherm Gebruikers ontbreekt.
+
+## Taal, agenda en indicaties
+
+- De knop EN/NL rechtsboven wisselt de taal. Wat in de databank staat (fase, type contactmoment) verandert daarbij niet; alle teksten staan in `public/i18n.js`.
+- Agenda toont per maand de volgende actie van elk ziekenhuis en de follow-ups van procedures, te filteren op verantwoordelijke. Het tabblad Logboek toont alle contactmomenten, te filteren op periode, type, indicatie en wie ze invoerde, met export naar CSV.
+- De indicaties (nu Thyroid en Fibroid) staan in de data zelf. Een nieuwe voeg je toe via ⋯ → Indicaties; ze verschijnt meteen in de filters, de fiche, de contactmomenten en de statistieken.
 
 Hou registratie uit in Supabase (Authentication → Sign In / Providers).
 
